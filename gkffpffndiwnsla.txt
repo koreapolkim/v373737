@@ -1,0 +1,4876 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+  <title>피싱예방체험</title>
+
+  <style>
+    :root{
+      --bg1:#EAF6FF;
+      --bg2:#FFFFFF;
+      --primary:#2F8CFF;
+      --primary2:#6DB7FF;
+      --ink:#1F2430;
+      --muted:#7A8191;
+      --card:#FFFFFF;
+      --stroke:rgba(25,28,38,.10);
+      --radius:18px;
+
+      --sat: env(safe-area-inset-top, 0px);
+      --sab: env(safe-area-inset-bottom, 0px);
+
+      /* Kakao-ish */
+      --kakao-bg:#BCD3E6;
+      --kakao-yellow:#FFE44D;
+      --kakao-yellow2:#FFE055;
+
+      /* Bars colors */
+      --c-verify:#2F8CFF;
+      --c-link:#6A2BD1;
+      --c-otp:#12B981;
+      --c-urgency:#F59E0B;
+      --c-money:#FB7185;
+      --c-context:#14B8A6;
+
+      /* ====== 전체 글씨 올리자 1pt ====== */
+      --fontUp: 1pt;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", "Segoe UI", Roboto, Arial, sans-serif;
+      color:var(--ink);
+      background: linear-gradient(180deg, var(--bg1), var(--bg2));
+      overflow:hidden;
+      -webkit-text-size-adjust: 100%;
+      font-size: calc(16px + var(--fontUp));
+    }
+
+    .phone{width:100vw;height: calc(var(--vh, 1vh) * 100);background:#fff;overflow:hidden;position:relative;}
+    .app{height:100%;display:flex;flex-direction:column;min-height:0;}
+
+    header{
+      /* 헤더 약간 작게 */
+      padding: calc(12px + var(--sat)) 14px 10px;
+      background: rgba(255,255,255,.92);
+      border-bottom:1px solid var(--stroke);
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      position:sticky; top:0; z-index:30;
+      backdrop-filter: blur(10px);
+    }
+
+    .fullscreen header{display:none}
+    .fullscreen main{padding:0; overflow:hidden}
+    .fullscreen .app{background:#000}
+
+    .brand{display:flex;align-items:center;gap:10px;min-width:0}
+    .logo{white-space:nowrap;font-size: calc(18px + var(--fontUp));letter-spacing:-.02em;display:flex;align-items:baseline;gap:0;}
+    .brandStrong{font-weight:950;color:var(--primary);text-shadow: 0 1px 1px rgba(0,0,0,.10);}
+
+    /* 경찰과 함께하는 체험 네이비 */
+    .brandLight{
+      font-size: calc(15px + var(--fontUp)); /* +1pt 반영 */
+      font-weight:900;
+      color:rgba(11,43,91,.92);
+      margin-left:12px;
+    }
+
+    .subtitle{
+      font-size: calc(14px + var(--fontUp));
+      font-weight:950;color:rgba(31,36,48,.92);
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+      max-width:260px;letter-spacing:-.01em;
+    }
+
+    .iconbtn{
+      width:40px;height:40px;border-radius:12px;border:1px solid var(--stroke);
+      background:#fff;display:grid;place-items:center;cursor:pointer;user-select:none;
+      box-shadow: 0 8px 18px rgba(25,28,38,.08);
+      font-size: calc(16px + var(--fontUp));
+    }
+    .burger{width:18px;height:12px; position:relative}
+    .burger::before,.burger::after,.burger span{content:"";position:absolute;left:0;right:0;height:2px;border-radius:2px;background:rgba(31,36,48,.80);}
+    .burger::before{top:0}
+    .burger span{top:5px}
+    .burger::after{bottom:0}
+
+    main{
+      flex:1;min-height:0;overflow:auto;
+      padding:12px 12px calc(16px + var(--sab));
+      -webkit-overflow-scrolling: touch;
+      background: transparent;
+    }
+
+    .card{background:var(--card);border:1px solid var(--stroke);border-radius: var(--radius);box-shadow: 0 8px 18px rgba(25,28,38,.06);}
+    .caseList{display:flex;flex-direction:column;gap:10px}
+    .caseItem{padding:14px;display:flex;gap:12px;align-items:flex-start;cursor:pointer}
+    .caseBody{flex:1;min-width:0}
+    .caseTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+    }
+    .caseTitle{font-size: calc(15px + var(--fontUp));font-weight:950;line-height:1.25;margin:0 0 6px;letter-spacing:-.02em;word-break:keep-all}
+    .caseSub{margin:0;color:var(--muted);font-size: calc(12.5px + var(--fontUp));line-height:1.35}
+
+    .chip{
+      font-size: calc(12px + var(--fontUp));
+      font-weight:900;
+      padding:6px 12px;
+      border-radius:9px;
+      border:1px solid rgba(31,36,48,.08);
+      background: rgba(79,163,255,.16);
+      color:#2D70C9;
+      white-space:nowrap;
+    }
+    .chip.blue{background:rgba(79,163,255,.16); color:#2D70C9}
+    .chip.red{background:rgba(255,107,107,.16); color:#D45050}
+    .chip.green{background:rgba(43,196,138,.16); color:#1D9A6C}
+    .chip.orange{background:rgba(255,183,77,.22); color:#B86B1D}
+    .chip.purple{background:rgba(151,71,255,.14); color:#6A2BD1}
+
+    /* 키워드 */
+    .kwWord{
+      display:inline-block;
+      font-weight:950;
+      color:rgba(31,36,48,.90);
+      margin-right:10px;
+      letter-spacing:-.01em;
+      font-size: calc(13px + var(--fontUp));
+    }
+
+    .detailHead{padding:16px}
+    .detailHead h2{margin:0 0 8px;font-size: calc(18px + var(--fontUp));letter-spacing:-.02em}
+    .detailHead p{margin:0;color:var(--muted);font-size: calc(13px + var(--fontUp));line-height:1.5}
+    .cta{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap}
+    .btn{border:none;padding:12px 14px;border-radius:16px;font-weight:950;cursor:pointer;user-select:none;letter-spacing:-.01em;font-size: calc(14px + var(--fontUp));}
+    .btn.primary{background: linear-gradient(180deg, var(--primary), var(--primary2));color:#fff;box-shadow: 0 14px 22px rgba(47,140,255,.22);}
+    .btn.ghost{background:#fff;border: 1px solid rgba(47,140,255,.28);color: var(--primary);}
+    .btn.block{width:100%}
+
+    /* 폴케어 버튼 입체감과 터치 축소 기능 */
+    .btn{transition: transform .06s ease, box-shadow .12s ease, filter .12s ease;}
+    .btn.primary{box-shadow: 0 8px 16px rgba(38,134,255,.22);}
+    .btn.primary:active{transform: scale(.97);filter: brightness(.98);}
+
+    /* === O / X 체험 버튼 === */
+    .btn.ox{
+  background: linear-gradient(180deg, rgba(120,220,180,.95), rgba(70,195,145,.95));
+  color:#fff;
+  border:none;
+  box-shadow: 0 10px 18px rgba(70,195,145,.20);
+}
+    .btn.ox:active{transform: scale(.97);filter: brightness(.98);}
+
+    /* ox 퀴즈 슬라이드 크기 */
+    .overlay.sheet{align-items:flex-end !important;justify-content:center !important;padding: var(--sat) 0 0 !important;}
+    .overlay.sheet .modal{
+  width:min(560px, 100%) !important;
+  border-radius:22px 22px 0 0 !important;
+  transform: translateY(0);
+  max-height: calc((var(--vh, 1vh) * 100) - (7px + var(--sat) + var(--sab))); 
+  display:flex;
+  flex-direction:column;
+}
+    .overlay.sheet.show .modal{animation: sheetUp .18s ease;}
+    @keyframes sheetUp{from{ transform: translateY(24px); opacity:0; }to{ transform: translateY(0); opacity:1; }}
+
+/* 스크롤 내용이 길어져도 상단 살리자잉 */
+.overlay.sheet .modalBody{
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.overlay.sheet .fb{
+  overflow: auto;
+  max-height: min(320px, 38vh); 
+  -webkit-overflow-scrolling: touch;
+}
+
+/* O/X 피드백 화면 2 */
+#quizOverlay.oxMode .modalBody{
+  overflow: hidden !important;
+}
+
+#quizOverlay.oxMode .fb{
+  overflow: hidden !important;
+  max-height: none !important;
+}
+
+    .infoBlock{padding:16px;display:flex;flex-direction:column;gap:10px}
+    .infoBlock .row{display:flex;gap:12px;align-items:flex-start}
+    .infoBlock .k{width:92px;flex:0 0 92px;color:var(--primary);font-weight:950;font-size: calc(13px + var(--fontUp))}
+    .infoBlock .v{flex:1;font-size: calc(13px + var(--fontUp));line-height:1.5;color:rgba(31,36,48,.86)}
+    .listDots{margin:0;padding-left:0;list-style:none;}
+    .listDots li{margin:0px 0}
+
+    /* ====== 상단 배너 ====== */
+    .banner{
+      position:absolute;left:12px; right:12px;top: calc(10px + var(--sat));
+      background: rgba(90,90,96,.90);
+      color:#fff;border-radius: 18px;
+      box-shadow: 0 14px 30px rgba(0,0,0,.22);
+      padding:12px 14px;
+      display:flex;gap:0px;align-items:flex-start;
+      z-index:80;
+      opacity:0;transform: translateY(-10px);
+      pointer-events:none;
+      transition: opacity .22s ease, transform .22s ease;
+    }
+    .banner{font-family:"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;}
+    .banner.show{opacity:1; transform: translateY(0); pointer-events:auto;}
+    .banner .ic{width:34px;height:34px;border-radius:12px;background: rgba(255,255,255,.16);display:grid;place-items:center;flex:0 0 34px;font-weight:1000;}
+    .banner .t1{font-weight:1000;font-size: calc(15px + var(--fontUp))}
+    .banner .t2{margin-top:2px;font-size: calc(15px + var(--fontUp));color:rgba(255,255,255,.82);line-height:1.35}
+
+    /* ====== 락(ㅎㅎ) ====== */
+    .pushGate{
+      height: calc(var(--vh, 1vh) * 100);
+      width:100%;
+      overflow:hidden;
+      background:
+        radial-gradient(900px 520px at 50% -10%, rgba(47,140,255,.28), transparent 55%),
+        linear-gradient(180deg, rgba(16,18,22,1), rgba(16,18,22,.92));
+      color:#fff;
+      position:relative;
+      padding: calc(26px + var(--sat)) 16px calc(18px + var(--sab));
+      display:flex;flex-direction:column;_attach:;
+      justify-content:space-between;
+    }
+    .pushTop{margin-top: calc(56px + var(--sat)); text-align:center;}
+    .pushClock{font-weight:1000;font-size: calc(44px + var(--fontUp));letter-spacing:-.03em}
+    .pushDate{margin-top:6px;color:rgba(255,255,255,.70);font-size: calc(20px + var(--fontUp))}
+    .pushCards{display:flex;flex-direction:column;gap:10px;margin-top:34px}
+    .pushCard{
+      background: rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.14);
+      border-radius: 18px;
+      padding:12px 12px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 12px 26px rgba(0,0,0,.28);
+      cursor:pointer;
+      user-select:none;
+    }
+    .pushRow{display:flex;align-items:flex-start;gap:10px}
+    .pushAppIc{
+      width:36px;height:36px;border-radius:14px;
+      background: rgba(255,255,255,.18);
+      display:grid;place-items:center;font-weight:1000;
+      flex:0 0 36px;
+    }
+    .pushTtl{font-weight:1000;font-size: calc(15px + var(--fontUp))}
+    .pushBody{margin-top:2px;color:rgba(255,255,255,.80);font-size: calc(15px + var(--fontUp));line-height:1.35}
+    .pushHint{margin-top:14px;color:rgba(255,255,255,.70);font-size: calc(15px + var(--fontUp));text-align:center;}
+    .pushGate{font-family:"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;}
+
+    /* ====== Messenger/Kakao 버튼 설정 ====== */
+    .expWrap{
+      height:100%;
+      display:flex;
+      flex-direction:column;
+      min-height:0;
+      border:none;
+      border-radius:0;
+      overflow:hidden;
+      background:#fff;
+      position:relative;
+    }
+    .chatHeader{
+      position:sticky;top:0;z-index:20;
+      padding: calc(10px + var(--sat)) 10px 8px;
+      display:flex;gap:8px;align-items:center;
+      border-bottom:1px solid var(--stroke);
+      background: rgba(255,255,255,.96);
+      backdrop-filter: blur(10px);
+    }
+    .backBtn{
+      width:36px;height:36px;border-radius:12px;border:1px solid var(--stroke);
+      background:#fff;display:grid;place-items:center;cursor:pointer;
+      box-shadow: 0 8px 18px rgba(25,28,38,.08);
+      font-weight:1000;flex:0 0 36px;
+      font-size: calc(16px + var(--fontUp));
+    }
+    .profile{display:flex;align-items:center;gap:10px;min-width:0;flex:1;}
+    .avatar{
+      width:38px;height:38px;border-radius:14px;
+      background: linear-gradient(180deg, rgba(255,255,255,.90), rgba(255,255,255,.60));
+      border:1px solid rgba(0,0,0,.08);
+      display:grid;place-items:center;
+      font-weight:1000;color:rgba(31,36,48,.75);
+      flex:0 0 38px;position:relative;overflow:hidden;
+      font-size: calc(16px + var(--fontUp));
+    }
+    .avatar .statusDot{
+      position:absolute; right:5px; bottom:5px;
+      width:10px;height:10px;border-radius:999px;
+      background:#2BC48A; box-shadow: 0 0 0 2px rgba(255,255,255,.95);
+    }
+    .pbox{min-width:0}
+    .pname{margin:0;font-weight:1000;font-size: calc(14px + var(--fontUp));letter-spacing:-.02em}
+    .psub{margin:2px 0 0;color:var(--muted);font-size: calc(12px + var(--fontUp));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+    .hdrIcons{display:flex;gap:6px;align-items:center;position:relative}
+    .hico{
+      width:36px;height:36px;border-radius:12px;border:1px solid var(--stroke);
+      background:#fff;display:grid;place-items:center;
+      box-shadow: 0 8px 18px rgba(25,28,38,.06);
+      cursor:pointer;user-select:none;
+      color:rgba(31,36,48,.78);font-weight:1000;
+      font-size: calc(16px + var(--fontUp));
+    }
+
+    .chatArea{
+      flex:1;
+      min-height:0;
+      overflow:auto;
+      padding:12px 10px calc(78px + var(--sab));
+      display:flex;flex-direction:column;gap:8px;
+      -webkit-overflow-scrolling: touch;
+      position:relative;
+    }
+
+    .kakaoBg{
+      background: linear-gradient(180deg, var(--kakao-bg), rgba(188,211,230,.70));
+    }
+    .kakaoBg::before{
+      content:"";
+      position:absolute; inset:0;
+      background-image:
+        radial-gradient(circle at 18px 18px, rgba(255,255,255,.20) 0 1px, transparent 2px),
+        radial-gradient(circle at 54px 52px, rgba(0,0,0,.04) 0 1px, transparent 2px);
+      background-size: 72px 72px;
+      opacity:.55;
+      pointer-events:none;
+    }
+    .kakaoBg > *{position:relative; z-index:1}
+
+    .rowMsg{display:flex;gap:7px;align-items:flex-end}
+    .rowMsg.me{justify-content:flex-end}
+    .rowMsg.other{justify-content:flex-start}
+
+    .stack{display:flex;flex-direction:column;gap:4px;max-width:72% !important;}
+    .stack.me{align-items:flex-end}
+    .stack.other{align-items:flex-start}
+
+    .bubble{
+      display:inline-block;
+      width:auto;
+      max-width: 100%;
+      padding:10px 12px;
+      border-radius: 14px;
+      border:1px solid rgba(0,0,0,.10);
+      line-height:1.48;
+      font-size: calc(13px + var(--fontUp));
+      position:relative;
+      box-shadow: 0 8px 18px rgba(25,28,38,.07);
+    }
+
+    /* URL만 예외로 끊어 */
+    .bubble .linkBtn{
+      word-break: break-all;
+      overflow-wrap: anywhere;
+    }
+
+    .kakao .bubble.me{
+      background: linear-gradient(180deg, var(--kakao-yellow), var(--kakao-yellow2));
+      border-color: rgba(0,0,0,.10);
+    }
+    .kakao .bubble.other{
+      background:#fff;
+      border-color: rgba(0,0,0,.08);
+    }
+    .sms .bubble.me{background: rgba(47,140,255,.14); border-color: rgba(47,140,255,.20);}
+    .sms .bubble.other{background:#fff}
+
+    .bubble.tail::after{
+      content:"";
+      position:absolute;
+      bottom:10px;
+      width:12px;height:16px;
+      background: inherit;
+      filter: drop-shadow(0 1px 0 rgba(0,0,0,.10));
+    }
+    .bubble.tail.other::after{
+      left:-9px;
+      clip-path: polygon(100% 0, 0 50%, 100% 100%);
+    }
+    .bubble.tail.me::after{
+      right:-9px;
+      clip-path: polygon(0 0, 100% 50%, 0 100%);
+    }
+
+    .metaRow{display:flex;align-items:flex-end;gap:6px;font-size: calc(11px + var(--fontUp));color: rgba(0,0,0,.45);white-space:nowrap;}
+    .metaRow.me{flex-direction:row-reverse}
+
+    @keyframes readSlideIn {from { opacity:0; transform: translateX(8px) translateY(2px); }to{ opacity:1; transform: translateX(0) translateY(0); }}
+    @keyframes readFadeOut { from { opacity:1; } to { opacity:0; } }
+    .readCount{font-weight:1000;color: rgba(0,0,0,.55);line-height:1;animation: readSlideIn .16s ease both;}
+    .readCount.vanish{animation: readFadeOut .25s ease forwards;}
+    .linkBtn{all:unset;color:#0B63FF;text-decoration: underline;cursor:pointer;font-weight:900;}
+    @keyframes popIn{from{opacity:0; transform: translateY(6px) scale(.98)}to{opacity:1; transform: translateY(0) scale(1)}}
+    .pop{animation: popIn .18s ease both}
+
+    /* 메시지와 카톡 하단 입력창 만듦 */
+    .chatFooter{
+      position:absolute;left:0;right:0;bottom:0;
+      padding:10px 10px calc(10px + var(--sab));
+      border-top:1px solid rgba(0,0,0,.06);
+      background: rgba(255,255,255,.94);
+      backdrop-filter: blur(10px);
+      z-index:25;
+    }
+    .chatInputRow{display:flex;gap:8px;align-items:center;}
+    .chatIcon{
+      width:34px;height:34px;border-radius:12px;
+      border:1px solid rgba(0,0,0,.08);
+      background:#fff;
+      display:grid;place-items:center;
+      font-weight:1000;color:rgba(31,36,48,.70);
+      user-select:none;
+      font-size: calc(16px + var(--fontUp));
+    }
+    .chatField{
+      flex:1;
+      height:38px;
+      border-radius:16px;
+      border:1px solid rgba(0,0,0,.10);
+      background:#fff;
+      padding:0 12px;
+      font-size: calc(13px + var(--fontUp));
+      outline:none;
+    }
+    .chatField::placeholder{color:rgba(31,36,48,.40);font-weight:800;}
+    .sendBtn{
+      height:38px;min-width:56px;
+      border-radius:16px;
+      border:1px solid rgba(0,0,0,.10);
+      background:#fff;
+      font-weight:1000;
+      cursor:not-allowed;
+      opacity:.70;
+      user-select:none;
+      font-size: calc(13px + var(--fontUp));
+    }
+    .kakaoFooter .sendBtn{
+      background: linear-gradient(180deg, var(--kakao-yellow), var(--kakao-yellow2));
+      border-color: rgba(0,0,0,.10);
+      color: rgba(0,0,0,.78);
+      opacity:1;
+    }
+
+    /* ====== 퀴즈 팝업 창====== */
+    .overlay{
+      position:absolute; inset:0;
+      background: rgba(0,0,0,.44);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+      z-index:90;
+    }
+    .overlay.show{display:flex}
+    .modal{
+      width:min(520px, 100%);
+      background:#fff;
+      border-radius: 22px;
+      border:1px solid rgba(255,255,255,.35);
+      box-shadow: 0 18px 60px rgba(0,0,0,.26);
+      overflow:hidden;
+    }
+    .modalHead{
+      padding:14px 14px 12px;
+      border-bottom:1px solid var(--stroke);
+      display:flex;justify-content:space-between;align-items:center;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(10px);
+    }
+    .modalHead .ttl{font-weight:1000;letter-spacing:-.02em;font-size: calc(14px + var(--fontUp))}
+    .modalBody{padding:14px}
+    .qPrompt{margin:0 0 10px;font-weight:1000;letter-spacing:-.02em;line-height:1.35;font-size: calc(14px + var(--fontUp))}
+    .choices{display:flex;flex-direction:column;gap:8px}
+
+    /* O/X 보여지는화면 */
+    #qVisual{ margin: 10px 0 8px; }
+
+    .choice{
+      padding:12px 12px;border-radius:16px;
+      border:1px solid var(--stroke);
+      background:#fff;cursor:pointer;
+      font-weight:950;font-size: calc(13px + var(--fontUp));text-align:left;
+      transition: transform .06s ease, background .12s ease, border-color .12s ease;
+    }
+    .choice:active{transform:scale(.99)}
+    .fb{
+      display:none;
+      padding:10px 12px 12px;
+      border-top:1px solid var(--stroke);
+      background: rgba(47,140,255,.08);
+      color: rgba(31,36,48,.92);
+      font-size: calc(14px + var(--fontUp));
+      line-height:1.55;
+    }
+    .fb.show{display:block}
+    .fb .big{font-weight:1000;margin-bottom:6px;font-size: calc(15px + var(--fontUp))}
+
+    /* 퀴즈 선택 되게끔 */
+    .choice.selected{
+      border-color: rgba(47,140,255,.55);
+      background: rgba(47,140,255,.10);
+      box-shadow: 0 10px 18px rgba(47,140,255,.12);
+    }
+
+    .quizNextBtn{
+      all: unset;
+      font: inherit;
+      font-size: calc(13px + var(--fontUp));
+      font-weight: 800;
+      padding: 6px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(31,36,48,.14);
+      background: #fff;
+      cursor: pointer;
+      user-select: none;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .quizNextBtn.on{
+      opacity: 1;
+      pointer-events: auto;
+      background: #2F8CFF;
+      border-color: rgba(47,140,255,.35);
+      color: #fff;
+      font-weight: 1000;
+      box-shadow: 0 10px 18px rgba(47,140,255,.25);
+    }
+    .quizNextBtn:disabled{
+      opacity: .35;
+      pointer-events: none;
+      background:#fff;
+      color:rgba(31,36,48,.55);
+      font-weight:800;
+      box-shadow:none;
+    }
+
+    /* O/X 문제 나가기 버튼 */
+    .oxExitBtn{
+      all: unset;
+      font: inherit;
+      font-size: calc(13px + var(--fontUp));
+      font-weight: 950;
+      padding: 6px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(31,36,48,.14);
+      background: #fff;
+      cursor: pointer;
+      user-select: none;
+      display:none;
+      color: rgba(31,36,48,.78);
+      box-shadow: 0 8px 16px rgba(25,28,38,.08);
+    }
+    .oxExitBtn:active{ transform: scale(.99); }
+
+    /* ====== 퀴즈 피드백 아래 왜 ====== */
+    .fb .why{
+      margin-top:8px;
+      font-size: calc(13px + var(--fontUp));
+      color:rgba(31,36,48,.78);
+      line-height:1.55;
+      padding-top:10px;
+      border-top:1px dashed rgba(31,36,48,.18);
+    }
+    .fb .why b{ font-weight:1000; }
+
+    /* === O / X 체험 화면 디자인 === */
+    .oxIntroStage{
+  position: relative;
+  inset: auto;
+
+  /* o / x 문제 배경 꽉차게 */
+  margin: -12px -12px calc(-16px - var(--sab)) -12px;
+  min-height: calc(100% + 12px + 16px + var(--sab)); 
+
+  overflow: hidden;
+  overscroll-behavior: none;
+  background: linear-gradient(180deg, var(--kakao-bg), rgba(188,211,230,.72));
+  color: rgba(31,36,48,.92);
+  padding: 16px 12px calc(16px + var(--sab));
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;
+  letter-spacing:-.02em;
+}
+
+    .oxIntroStage::before{
+      content:"";
+      position:absolute; inset:0;
+      background-image:
+        radial-gradient(circle at 18px 18px, rgba(255,255,255,.22) 0 1px, transparent 2px),
+        radial-gradient(circle at 54px 52px, rgba(0,0,0,.04) 0 1px, transparent 2px);
+      background-size: 72px 72px;
+      opacity:.55;
+      pointer-events:none;
+    }
+    .oxIntroCard{
+      width:min(560px, 100%);
+      background: rgba(255,255,255,.92);
+      border:1px solid rgba(0,0,0,.08);
+      border-radius:18px;
+      box-shadow: 0 18px 60px rgba(0,0,0,.18);
+      overflow:hidden;
+      position:relative;
+max-height: calc((var(--vh, 1vh) * 100) - (32px + var(--sat) + var(--sab)));
+    }
+    .oxIntroTop{
+      padding:16px 16px 0;
+      text-align:center;
+    }
+    .oxIntroBadge{
+      display:inline-block;
+      padding:10px 14px;
+      border-radius:16px;
+      background: rgba(47,140,255,.12);
+      border:1px solid rgba(47,140,255,.18);
+      font-weight:1000;
+      font-size: calc(16px + var(--fontUp));
+      color:#2D70C9;
+    }
+    .oxIntroSub{
+      margin-top:10px;
+      display:inline-block;
+      padding:10px 14px;
+      border-radius:16px;
+      background: rgba(31,36,48,.04);
+      color: rgba(31,36,48,.86);
+      border:1px solid rgba(0,0,0,.06);
+      font-weight:1000;
+      font-size: calc(14px + var(--fontUp));
+    }
+    .oxIntroHint{
+      margin-top:14px;
+      color: rgba(31,36,48,.76);
+      font-size: calc(13px + var(--fontUp));
+      line-height:1.55;
+      padding: 0 6px;
+    }
+    .oxIntroPreview{
+      padding:14px 16px 0;
+    }
+    .oxIntroBottom{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      padding:14px 16px 16px;
+    }
+
+    /* ox 시작하기 버튼과 뒤로가기 버튼 */
+    .oxIntroBtn{
+      border:none;
+      width:100%;
+      padding:12px 14px;
+      border-radius:18px;
+      font-weight:1000;
+      cursor:pointer;
+      user-select:none;
+      font-size: calc(14px + var(--fontUp));
+      letter-spacing:-.02em;
+      transition: transform .06s ease, filter .12s ease;
+    }
+    .oxIntroBtn:active{ transform: scale(.98); filter: brightness(.98); }
+    .oxIntroBtn.start{
+      background: linear-gradient(180deg, var(--primary), var(--primary2));
+      color:#fff;
+      border: none;
+      box-shadow: 0 14px 26px rgba(47,140,255,.20);
+padding:12px 14px;
+  font-size: calc(14px + var(--fontUp));
+    }
+    .oxIntroBtn.back{
+      background: #fff;
+      color: var(--primary);
+      border:1px solid rgba(0,0,0,.10);
+      box-shadow: 0 10px 18px rgba(25,28,38,.08);
+    }
+
+    /* OX 퀴즈 모드 */
+    #quizOverlay.oxMode .quizNextBtn{ display:none; }
+    #quizOverlay.oxMode .oxExitBtn{ display:inline-flex; }
+    #quizOverlay.oxMode .modalHead .ttl{ font-weight:1000; }
+    #quizOverlay.oxMode .modalBody{ padding:14px 14px 12px; }
+    #quizOverlay.oxMode .choices{ gap:10px; }
+
+/* OX 피드백 높이 */
+#quizOverlay.oxMode .fb{
+  overflow: visible;
+  max-height: none;
+}
+
+/* OX 모드 슬라이드 높이 2  */
+#quizOverlay.oxMode .modal{
+  min-height: 70vh;
+}
+
+
+    .oxMsgCard{
+      border:1px solid rgba(0,0,0,.10);
+      border-radius:16px;
+      overflow:hidden;
+      background:#fff;
+      box-shadow: 0 14px 30px rgba(25,28,38,.10);
+    }
+    .oxMsgTop{
+      padding:10px 12px;
+      background: rgba(31,36,48,.04);
+      border-bottom:1px solid rgba(0,0,0,.06);
+      font-weight:1000;
+      letter-spacing:-.02em;
+      text-align:left;
+      font-size: calc(15px + var(--fontUp));
+      color: rgba(31,36,48,.92);
+    }
+    .oxMsgBody{
+      padding:12px;
+      background: linear-gradient(180deg, rgba(188,211,230,.55), rgba(188,211,230,.38));
+      position:relative;
+    }
+    .oxMsgBubble{
+      background:#fff;
+      border:1px solid rgba(0,0,0,.08);
+      border-radius:14px;
+      padding:10px 12px;
+      width:min(420px, 100%);
+      box-shadow: 0 10px 18px rgba(25,28,38,.08);
+    }
+    .oxWeb{
+      font-weight:1000;
+      color: rgba(31,36,48,.70);
+      font-size: calc(12px + var(--fontUp));
+      margin-bottom:6px;
+    }
+    .oxText{
+      font-size: calc(13px + var(--fontUp));
+      color: rgba(31,36,48,.92);
+      line-height:1.5;
+      word-break: keep-all;
+    }
+    .oxChoiceRow{
+      display:flex;
+      gap:10px;
+      margin-top:12px;
+    }
+    .oxPickBtn{
+      flex:1;
+      border:none;
+      padding:14px 12px;
+      border-radius:18px;
+      background: linear-gradient(180deg, var(--primary), var(--primary2));
+      color:#fff;
+      font-weight:1000;
+      cursor:pointer;
+      user-select:none;
+      font-size: calc(18px + var(--fontUp));
+      box-shadow: 0 12px 22px rgba(47,140,255,.22);
+      transition: transform .06s ease, filter .12s ease;
+    }
+    .oxPickBtn:active{ transform: scale(.98); filter: brightness(.98); }
+
+    .oxPickBtn.selected{
+      outline: 3px solid rgba(255,255,255,.92);
+      box-shadow: 0 14px 28px rgba(47,140,255,.28);
+    }
+
+    .oxMark{
+      display:inline-block;
+      border-radius:8px;
+      padding:1px 4px;
+      transition: box-shadow .12s ease, outline .12s ease, background .12s ease;
+    }
+    .oxMark.hi{
+      background: rgba(255,228,77,.55);
+      outline: 2px solid rgba(255,193,7,.45);
+      box-shadow: 0 10px 18px rgba(255,228,77,.14);
+    }
+    .oxLink{
+      display:inline-block;
+      color:#0B63FF;
+      text-decoration: underline;
+      font-weight:1000;
+      word-break: break-all;
+      overflow-wrap:anywhere;
+      position:relative;
+    }
+    .oxLink.hi{
+      outline: 2px solid rgba(255,59,48,.55);
+      background: rgba(255,59,48,.10);
+      border-radius:8px;
+      padding:1px 4px;
+    }
+    .oxLink.hi::after{
+      content:"🚫";
+      position:absolute;
+      right:-14px;
+      top:-10px;
+      font-size: 18px;
+      transform: rotate(-12deg);
+    }
+    .oxUrgency.hi{
+      background: rgba(255,59,48,.10);
+      outline: 2px dashed rgba(255,59,48,.45);
+    }
+
+    .oxFbWrap{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .oxActionRow{
+      margin-top:10px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .oxActionBtn{
+      flex:1;
+      border:none;
+      padding:12px 14px;
+      border-radius:16px;
+      font-weight:1000;
+      cursor:pointer;
+      user-select:none;
+      font-size: calc(14px + var(--fontUp));
+      transition: transform .06s ease, filter .12s ease;
+    }
+    .oxActionBtn:active{ transform: scale(.98); filter: brightness(.98); }
+    .oxActionBtn.next{
+      background: linear-gradient(180deg, var(--primary), var(--primary2));
+      color:#fff;
+      box-shadow: 0 14px 22px rgba(47,140,255,.22);
+    }
+    .oxActionBtn.retry{
+      background: linear-gradient(180deg, rgba(255,244,178,.96), rgba(255,232,120,.96));
+      color: rgba(0,0,0,.82);
+      border:1px solid rgba(0,0,0,.10);
+      box-shadow: 0 14px 22px rgba(255,228,77,.18);
+    }
+
+    /* ====== 전화형 체험(슬라이드 문제) ====== */
+    #quizOverlay.callMode .quizNextBtn{ display:none !important; }
+    /* 문제 나가기 버튼: OX처럼 노출 */
+    #quizOverlay.callMode .oxExitBtn{ display:inline-flex !important; }
+/* 글씨 올리기 */
+#quizOverlay.callMode .qPrompt{
+  font-size: calc(14px + var(--fontUp) + 1pt);
+}
+/* 전화형 체험 문제 질문 줄간격(상하 자간) */
+#quizOverlay.callMode .qPrompt{
+  line-height: 1.8;  
+}
+
+
+    /* OX 문제풀기와 동일한 슬라이드 크기(높이) */
+    #quizOverlay.callMode .modal{ min-height: 80vh; }
+    #quizOverlay.callMode .modalBody{ padding:14px 14px 12px; overflow: hidden !important; }
+    #quizOverlay.callMode .fb{ overflow: visible !important; max-height: none !important; }
+    #quizOverlay.callMode .choices{ gap:10px; }
+
+    .callPickBtn{
+      width:100%;
+      border:none;
+      padding:14px 14px;
+      border-radius:18px;
+      background: linear-gradient(180deg, rgba(255,244,178,.96), rgba(255,232,120,.96));
+      color: rgba(0,0,0,.86);
+      border:1px solid rgba(0,0,0,.10);
+      box-shadow: 0 14px 22px rgba(255,228,77,.18);
+      font-weight:1000;
+      cursor:pointer;
+      user-select:none;
+      font-size: calc(14px + var(--fontUp));
+      text-align:left;
+      letter-spacing:-.02em;
+      transition: transform .06s ease, filter .12s ease, box-shadow .12s ease;
+    }
+    .callPickBtn:active{ transform: scale(.99); filter: brightness(.99); }
+    .callPickBtn.selected{
+      outline: 3px solid rgba(255,255,255,.92);
+      box-shadow: 0 16px 28px rgba(255,228,77,.22);
+    }
+
+
+    /* ====== 예방수칙과 공유하기 ====== */
+    .slider{display:flex;gap:10px;overflow:hidden;position:relative}
+    .slideTrack{display:flex;transition: transform .25s ease;will-change: transform}
+    .slide{width: calc(100vw - 24px);max-width: 560px;flex:0 0 auto;padding:16px}
+    .dots{display:flex;justify-content:center;gap:8px;margin-top:10px}
+    .dot{width:8px;height:8px;border-radius:999px;background: rgba(31,36,48,.18)}
+    .dot.on{background: var(--primary)}
+    .reportWrap{max-width:560px;margin:0 auto}
+
+    /* ====== 메인화면 배경 이미지 ====== */
+    .homeHeroText{
+      border-radius:16px;
+      overflow:hidden;
+      position:relative;
+      padding:10px 16px;
+      min-height: clamp(110px, 34vw, 160px);
+    }
+    .homeHeroText.hasBg::before{
+      content:"";
+      position:absolute; inset:0;
+      background-image: var(--home-hero-bg, none);
+      background-size: contain;
+      background-position: center center;
+      background-repeat: no-repeat;
+      opacity: .22;
+      pointer-events:none;
+    }
+    .homeHeroText > *{ position:relative; z-index:1; }
+
+    .guidePh{
+      height:160px;
+      border-radius:16px;
+      border:1px solid rgba(0,0,0,.06);
+      background:#fff;
+      display:flex;flex-direction:column;justify-content:center;align-items:center;
+      gap:8px;
+      text-align:center;
+      padding:0;
+      overflow:hidden;
+    }
+    .guidePh img{width:100%;height:100%;object-fit:contain;border-radius:14px;background:#fff;}
+    .guidePh .big{font-weight:1000;letter-spacing:-.02em;font-size: calc(14px + var(--fontUp))}
+    .guidePh .small{font-size: calc(12.5px + var(--fontUp));color:rgba(31,36,48,.70);line-height:1.45}
+
+    /* ====== 전화형(전체화면으로) ====== */
+    .callIncoming{
+      height: calc(var(--vh, 1vh) * 100);
+      display:flex;flex-direction:column;justify-content:space-between;
+      padding: calc(18px + var(--sat)) 16px calc(22px + var(--sab));
+      background:
+        radial-gradient(900px 700px at 50% -20%, rgba(47,140,255,.38), transparent 60%),
+        linear-gradient(180deg, rgba(20,24,30,1), rgba(20,24,30,.86));
+      color:#fff;overflow:hidden;position:relative;
+    }
+    .callTopInfo{margin-top:46px;text-align:center;}
+    .callTopInfo .name{margin:0;font-weight:1500 !important;font-size: calc(22px + var(--fontUp));letter-spacing:-.02em}
+    .callTopInfo .num{margin:10px 0 0;color:rgba(255,255,255,.78);font-size: calc(13px + var(--fontUp))}
+    .callHint{text-align:center;color:rgba(255,255,255,.70);font-size: calc(12px + var(--fontUp));margin-top:10px;}
+    .callActions{display:grid;grid-template-columns: 1fr 1fr;gap:12px;}
+    .callBtn{border:none;padding:14px 12px;border-radius: 18px;font-weight:1000;cursor:pointer;color:#fff;font-size: calc(14px + var(--fontUp));}
+    .callAccept{background: linear-gradient(180deg, rgba(43,196,138,1), rgba(20,160,107,1))}
+    .callReject{background: linear-gradient(180deg, rgba(255,107,107,1), rgba(220,73,73,1))}
+
+    .callInPre{
+      height: calc(var(--vh, 1vh) * 100);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      background: linear-gradient(180deg, rgba(16,18,22,1), rgba(16,18,22,.92));
+      color:#fff;
+      position:relative;
+      text-align:center;
+      padding: 0 16px;
+    }
+    .callInPre .who{font-weight:1000;font-size: calc(18px + var(--fontUp));letter-spacing:-.02em}
+    .callInPre .timer{margin-top:10px;color:rgba(255,255,255,.76);font-size: calc(13px + var(--fontUp))}
+    .wave{margin-top:22px;display:flex;gap:6px;align-items:flex-end;height:44px;opacity:.85;}
+    .bar{width:6px;border-radius:999px;background: rgba(255,255,255,.70);animation: w 0.55s ease-in-out infinite alternate;}
+    .bar:nth-child(2){animation-duration:.45s}
+    .bar:nth-child(3){animation-duration:.62s}
+    .bar:nth-child(4){animation-duration:.39s}
+    .bar:nth-child(5){animation-duration:.58s}
+    @keyframes w { from{height:10px} to{height:44px} }
+
+    /* 전화 화면 폰트 */
+    .callIncoming, .callInPre{
+      font-family: "Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif !important;
+      letter-spacing: -0.02em;
+    }
+    /* 발신자 이름 글씨체 */
+    .callTopInfo .name{ font-size: calc(24px + var(--fontUp)) !important; font-weight:1000; }
+    /* 번호 표시 글씨체 */
+    .callTopInfo .num{ font-size: calc(30px + var(--fontUp)) !important; color:rgba(255,255,255,.82) !important; }
+    /* “전화가 울립니다…” */
+    .callHint{ font-size: calc(13px + var(--fontUp)) !important; }
+
+    /* ====== 결과 ====== */
+    .resultWrap{max-width:560px;margin:0 auto}
+/* OX 결과 화면 폰트 */
+.oxResultWrap, .oxResultWrap *{
+  font-family:"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif !important;
+  letter-spacing:-.02em;
+}
+
+.oxResultWrap{
+  font-size: 13.5px; /* 결과 화면 기본 글씨 조절 */
+}
+    .ringWrap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:8px 0 2px;}
+    .ringSvgWrap{width:160px;height:160px;display:grid;place-items:center;position:relative;}
+    .ringCenter{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:2px;}
+    .ringCenter .n{font-size: calc(34px + var(--fontUp));font-weight:1000;letter-spacing:-.03em}
+    .badgeType{
+      display:inline-block;
+      padding:8px 10px;border-radius:999px;
+      border:1px solid rgba(151,71,255,.18);
+      font-weight:1000;font-size: calc(12px + var(--fontUp));
+      text-align:center;width: fit-content;margin: 0 auto;
+    }
+
+    .bars{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+    .barRow{display:grid;grid-template-columns: 112px 1fr 42px;gap:10px;align-items:center;}
+    .barRow .k{font-weight:1000;font-size: calc(12.5px + var(--fontUp));color:rgba(31,36,48,.80)}
+    .barTrack{height:12px;border-radius:999px;background: rgba(31,36,48,.10);overflow:hidden;border:1px solid rgba(0,0,0,.06);}
+    .barFill{height:100%;width: calc(var(--v)*1%);background: var(--bar-color, var(--primary));border-radius:999px;}
+    .barRow .v{font-weight:1000;font-size: calc(12px + var(--fontUp));color:rgba(31,36,48,.70);text-align:right}
+
+    .plainList{margin-top:12px;color:rgba(31,36,48,.80);font-size: calc(13px + var(--fontUp));line-height:1.6;}
+    .plainList .ttl{font-weight:1000;color:rgba(31,36,48,.92);margin-bottom:6px}
+    .pill{
+      display:inline-block;
+      padding:6px 10px;border-radius:12px;
+      border:1px solid rgba(0,0,0,.08);
+      background: rgba(31,36,48,.04);
+      font-weight:900;
+      font-size: calc(12px + var(--fontUp));
+      margin:4px 6px 0 0;
+    }
+
+    /* ====== 메뉴 ====== */
+    .menuList{display:flex;flex-direction:column;gap:10px;}
+
+    /* ====== 대화 중 공문 표시 될까 ====== */
+    .imgCard{display:flex;flex-direction:column;gap:8px;}
+    .imgCard .ph{
+      width:260px;
+      max-width:100%;
+      height:160px;
+      border-radius:14px;
+      border:1px solid rgba(0,0,0,.10);
+      background: linear-gradient(180deg, rgba(31,36,48,.04), rgba(31,36,48,.02));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:950;
+      color:rgba(31,36,48,.55);
+      text-align:center;
+      padding:12px;
+      font-size: calc(13px + var(--fontUp));
+    }
+    .imgCard img{
+      width:260px;
+      max-width:100%;
+      height:auto;
+      border-radius:14px;
+      border:1px solid rgba(0,0,0,.08);
+      display:block;
+    }
+    .imgCard .cap{
+      font-size: calc(12.5px + var(--fontUp));
+      color:rgba(31,36,48,.70);
+      line-height:1.45;
+    }
+
+    /* ====== 만든이(크레딧) ====== */
+    .creditsStage{
+      height:70vh;
+      background:#fff;
+      color:rgba(31,36,48,.82);
+      border-radius:16px;
+      overflow:hidden;
+      position:relative;
+      border:none;
+    }
+    .creditsRoll{
+      position:absolute;
+      left:0; right:0;
+      top:100%;
+      bottom:auto;
+      bottom:-120%;
+      padding:24px 18px 60px;
+      text-align:center;
+      line-height:1.8;
+      font-weight:900;
+      letter-spacing:-.02em;
+      animation: creditsRoll 21s linear forwards;
+      font-size: calc(14px + var(--fontUp));
+    }
+    .creditsRoll .small{
+      font-weight:800;
+      color:rgba(31,36,48,.55);
+      font-size: calc(13px + var(--fontUp));
+    }
+    @keyframes creditsRoll{
+      from{ transform: translateY(0); }
+      to{ transform: translateY(calc(-100% - 70vh)); }
+    }
+
+    .pushCard{display:flex;align-items:center;justify-content:center;text-align:center;}
+    .pushBodyOnly{
+      font-weight:1000;
+      font-size: calc(15px + var(--fontUp));
+      color: rgba(255,255,255,.85);
+      line-height:1.35;
+      padding: 6px 10px;
+    }
+
+    #quizOverlay.show{ pointer-events:none; }
+    #quizOverlay.show .modal{ pointer-events:auto; }
+
+    /* ====== 퀴즈 시트 접기/펼치기 ====== */
+    .overlay.sheet{ --sheet-peek: 58px; }
+    .overlay.sheet .modal{transition: transform .22s ease;will-change: transform;}
+    .overlay.sheet.collapsed{ background: transparent; }
+    .overlay.sheet.collapsed .modal{transform: translateY(calc(100% - var(--sheet-peek)));}
+
+    /* 가운데 화살표와 진행표시(1/3 등) */
+    .modalHead{ position:relative; }
+    .sheetCenter{
+      position:absolute;
+      left:50%;
+      top:50%;
+      transform: translate(-50%, -50%);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+    }
+    .sheetToggle{
+      all: unset;
+      width:34px;height:34px;
+      border-radius:999px;
+      border:1px solid rgba(31,36,48,.14);
+      background:#fff;
+      display:grid;
+      place-items:center;
+      box-shadow: 0 8px 18px rgba(25,28,38,.10);
+      cursor:pointer;
+      user-select:none;
+    }
+    .sheetToggle .chev{
+      width:8px;height:8px;
+      border-right:2px solid rgba(31,36,48,.55);
+      border-bottom:2px solid rgba(31,36,48,.55);
+      transform: rotate(45deg);
+      margin-top:-2px;
+    }
+    .overlay.sheet.collapsed .sheetToggle .chev{
+      transform: rotate(-135deg);
+      margin-top:2px;
+    }
+
+    .quizProgress{
+      font-weight:1000;
+      font-size: calc(12.5px + var(--fontUp));
+      color: rgba(31,36,48,.70);
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(31,36,48,.12);
+      background: rgba(255,255,255,.95);
+      box-shadow: 0 8px 18px rgba(25,28,38,.08);
+      line-height:1;
+      white-space:nowrap;
+    }
+    .quizProgress.hidden{ display:none; }
+
+    /* ====== 결과 화면 박스용 ====== */
+    .boxedSection{
+      border:1px solid rgba(0,0,0,.10);
+      border-radius:16px;
+      background: rgba(31,36,48,.02);
+      padding:12px 12px;
+      margin-top:12px;
+    }
+    .boxedSection.compact{ padding:8px 10px; }
+
+    /* === 대시보드 === */
+    .homeDashGrid{
+      margin-top:12px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    .homeTile{
+      overflow:hidden;
+      padding:0;
+    }
+    .homeTileHead{
+      padding:10px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .homeTileHead .ttl{
+      font-weight:1000;
+      letter-spacing:-.02em;
+      font-size:calc(14px + var(--fontUp));
+      color:rgba(31,36,48,.92);
+    }
+    .homeTileBody{
+      padding:12px 12px 12px;
+    }
+    .homeMiniMuted{
+      margin-top:6px;
+      color:rgba(31,36,48,.60);
+      font-size:calc(12px + var(--fontUp));
+      line-height:1.35;
+    }
+    .homeBigScore{
+      font-weight:1000;
+      letter-spacing:-.02em;
+      font-size:calc(32px + var(--fontUp));
+      line-height:1;
+    }
+    .homeBadge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(0,0,0,.08);
+      font-weight:950;
+      font-size:calc(12px + var(--fontUp));
+      white-space:nowrap;
+    }
+    .homeBadge.sky{ background:rgba(79,163,255,.16); color:#2D70C9; }
+    .homeBadge.green{ background:rgba(43,196,138,.16); color:#1D9A6C; border-color: rgba(43,196,138,.22); }
+    .homeBadge.orange{ background:rgba(255,183,77,.22); color:#B86B1D; border-color: rgba(255,183,77,.26); }
+    .homeBadge.red{ background:rgba(255,107,107,.16); color:#D45050; border-color: rgba(255,107,107,.22); }
+
+    /* 세부 구간 바 */
+    .homeSegWrap{
+      margin-top:10px;
+      position:relative;
+    }
+    .homeSegBar{
+      display:flex;
+      gap:6px;
+      align-items:center;
+      position:relative;
+      padding:2px 2px;
+      border-radius:999px;
+      background: rgba(31,36,48,.04);
+      border: 1px solid rgba(0,0,0,.06);
+      overflow:hidden;
+    }
+    .homeSeg{
+      flex:1;
+      height:12px;
+      border-radius:999px;
+      background: linear-gradient(180deg, rgba(31,36,48,.10), rgba(31,36,48,.06));
+      border:1px solid rgba(0,0,0,.06);
+      position:relative;
+      overflow:hidden;
+    }
+    .homeSeg.on{
+      background: linear-gradient(180deg, rgba(47,140,255,.28), rgba(47,140,255,.12));
+      border-color: rgba(47,140,255,.24);
+      box-shadow: inset 0 0 0 1px rgba(47,140,255,.10);
+    }
+    .homeSegLabels{
+      margin-top:8px;
+      display:flex;
+      gap:6px;
+      justify-content:flex-start;
+      font-size:calc(10.5px + var(--fontUp));
+      color:rgba(31,36,48,.55);
+      line-height:1.2;
+    }
+    .homeSegLabels > div{
+      flex:1;
+      text-align:center;
+    }
+
+    .homeSegMarker{
+      position:absolute;
+      top:50%;
+      transform: translate(-50%, -50%);
+      width:12px;height:12px;border-radius:999px;
+      background:#2F8CFF;
+      box-shadow: 0 10px 18px rgba(47,140,255,.35), 0 0 0 3px rgba(255,255,255,.92);
+      pointer-events:none;
+      opacity:0;
+    }
+    .homeSegMarker.on{ opacity:1; }
+
+    /* 점수 안내표 */
+    .scoreTable{
+      font-size: calc(13px + var(--fontUp));
+    }
+  </style>
+
+<style id="polcare-request-patch-style">
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    -webkit-text-size-adjust: 100%;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    touch-action: manipulation;
+  }
+
+  .polcare-brand-press { transform: scale(0.98); opacity: 0.85; }
+  #brandHome{ cursor:pointer; -webkit-tap-highlight-color: transparent; }
+
+  body { -webkit-user-select: none; user-select: none; }
+  button, input, textarea, select { -webkit-user-select: auto; user-select: auto; }
+
+  .stack { align-items: flex-start; }
+  .stack.me { align-items: flex-end; }
+  .stack.other { align-items: flex-start; }
+
+  .bubble{
+    display: inline-block;
+    width: fit-content;
+    max-width: 100%;
+    align-self: flex-start;
+    border-radius: 14px;
+  }
+
+  .rowMsg.me .bubble{ align-self: flex-end; }
+
+  .kakao .bubble.me{ border-top-right-radius: 14px; }
+  .kakao .bubble.other{ border-top-left-radius: 14px; }
+
+  .bubble .linkBtn{
+    word-break: break-all !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .introBox{
+    font-family: "Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif !important;
+    letter-spacing: 0.0em;
+    background: #fff !important;
+    font-size: calc(15px + var(--fontUp)) !important;
+    line-height: 1.7 !important;
+  }
+
+  .introBox *{
+    font-family: "Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif !important;
+    letter-spacing: 0.0em;
+    font-size: inherit !important;
+  }
+
+  .homeSegMarker{ display:none !important; }
+</style>
+
+</head>
+
+<body>
+  <div class="phone" aria-label="피싱 범죄예방 모의체험">
+    <div id="banner" class="banner" role="button" aria-label="알림/토스트">
+      <div>
+        <div class="t1" id="bannerTitle">알림</div>
+        <div class="t2" id="bannerBody">내용</div>
+      </div>
+    </div>
+
+    <div class="app" id="app">
+      <header>
+        <div class="brand">
+          <div class="logo" id="brandHome" role="button" aria-label="홈으로 이동">
+            <span class="brandStrong">폴케어</span><span class="brandLight">경찰과 함께하는 피싱 범죄 모의체험</span>
+          </div>
+          <div class="subtitle" id="brandSub"></div>
+        </div>
+        <div class="iconbtn" id="menuBtn" title="메뉴">
+          <div class="burger"><span></span></div>
+        </div>
+      </header>
+
+      <main id="main"></main>
+
+      <div class="overlay sheet" id="quizOverlay" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-label="문제">
+          <div class="modalHead">
+            <div class="ttl" id="quizHeadTitle">문제</div>
+
+            <div class="sheetCenter">
+              <button type="button" class="sheetToggle" id="quizSheetToggle"
+                aria-label="문제창 접기/펼치기" aria-expanded="true">
+                <span class="chev"></span>
+              </button>
+              <div class="quizProgress hidden" id="quizProgress" role="status" aria-live="polite"></div>
+            </div>
+
+            <!-- O/X 문제 나가기 버튼 -->
+            <button type="button" class="oxExitBtn" id="oxExitBtn">문제 나가기</button>
+
+            <button type="button" class="quizNextBtn" id="quizNextBtn" disabled>다음</button>
+          </div>
+          <div class="modalBody">
+            <p class="qPrompt" id="qPrompt"></p>
+            <!-- O/X 체험용 보여지는 화면 -->
+            <div id="qVisual"></div>
+            <div class="choices" id="qChoices"></div>
+          </div>
+          <div class="fb" id="qFeedback">
+            <div class="big" id="fbTitle">피드백</div>
+            <div id="fbBody"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="overlay" id="menuOverlay" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-label="메뉴">
+          <div class="modalHead">
+            <div class="ttl">메뉴</div>
+            <button class="iconbtn" id="menuClose" title="닫기" aria-label="닫기">✕</button>
+          </div>
+          <div class="modalBody">
+            <div class="menuList">
+              <button class="btn ghost block" id="goHomeMenu">홈</button>
+              <button class="btn primary block" id="goExpMenu">체험하기</button>
+              <button class="btn ghost block" id="shareMenu">공유하기</button>
+              <button class="btn ghost block" id="promoVideoMenu">홍보영상</button>
+              <button class="btn ghost block" id="creditsmenu">만든이</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="overlay" id="creditsOverlay" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-label="만든이">
+          <div class="modalHead">
+            <div class="ttl">만든이</div>
+            <button class="iconbtn" id="creditsClose" title="닫기" aria-label="닫기">✕</button>
+          </div>
+          <div class="modalBody">
+            <div class="creditsStage">
+              <div class="creditsRoll" id="creditsRoll"></div>
+            </div>
+            <div style="margin-top:10px;color:rgba(31,36,48,.70);font-size:calc(12.5px + var(--fontUp));line-height:1.5;text-align:center;"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+if(!String.prototype.replaceAll){
+  String.prototype.replaceAll = function(search, replacement){
+    return this.split(search).join(replacement);
+  };
+}
+
+/* 태그/내용 복사 방지와 길게누르기 방지(허접죄송ㅎㅎㅎ) */
+(function(){
+  const isEditable = (el)=>{
+    if(!el) return false;
+    try{
+      return !!el.closest('input,textarea,select,[contenteditable="true"]');
+    }catch(e){ return false; }
+  };
+  const prevent = (e)=>{
+    if(isEditable(e.target)) return;
+    e.preventDefault();
+  };
+  document.addEventListener("contextmenu", prevent);
+  document.addEventListener("copy", prevent);
+  document.addEventListener("cut", prevent);
+  document.addEventListener("selectstart", prevent);
+  document.addEventListener("dragstart", prevent);
+})();
+
+window.CASES = window.CASES || [];
+window.SCENARIOS = window.SCENARIOS || {};
+window.DATA_CATEGORIES = window.DATA_CATEGORIES || {};
+
+function V(verify=0, link=0, otp=0, urgency=0, money=0, context=0){
+  return { verify, link, otp, urgency, money, context };
+}
+
+/* === 링크칸/표시 === */
+const CALLER_NAME_OVERRIDE = "";
+const CALLER_NUMBER_OVERRIDE = "";
+
+/* 배경이미지 주소 */
+const HOME_HERO_BG_URL = "https://koreapolkim.github.io/pict/police.png";
+
+/* 안내메시지 */
+const HOME_GUIDE_SLIDES = [
+  { img: "https://koreapolkim.github.io/an/an.jpg", href: "https://koreapolkim.github.io/an/an.jpg" },
+  { img: "https://koreapolkim.github.io/inf/knpa.jpg",  href: "https://www.counterscam112.go.kr/" },
+];
+
+/* 소리 링크 */
+const SOUND_NOTIFY_URL = "https://koreapolkim.github.io/p-m/in.mp3";
+const SOUND_RINGTONE_URL = "https://koreapolkim.github.io/p-m/mu.mp3";
+const SOUND_CALL_VOICE_URL = "";
+
+/* === 안전지수와 마지막 결과 보기 === */
+const LS_LAST_SCORE = "polcare_last_score";
+const LS_LAST_AT = "polcare_last_at";
+
+/* 마지막으로 확인한 결과 화면 가기 */
+const LS_LAST_EXP = "polcare_last_exp";
+const LS_LAST_SESSION = "polcare_last_session";
+
+/* 공유 시 다른기기 구분 */
+const LS_DEVICE_ID = "polcare_device_id";
+const LS_SHARED_VIEW = "polcare_shared_view";
+
+/* O/X 체험 저장 */
+const LS_OX_LAST = "polcare_ox_last";
+
+/* 디바이스 ID 생성 및 조회 */
+function getOrCreateDeviceId(){
+  try{
+    let id = localStorage.getItem(LS_DEVICE_ID);
+    if(id && String(id).trim()) return id;
+    id = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (String(Date.now()) + "-" + Math.random().toString(16).slice(2));
+    localStorage.setItem(LS_DEVICE_ID, id);
+    return id;
+  }catch(e){
+    return "na";
+  }
+}
+
+/* 공유 링크로 들어온 기기는 점수 초기화 */
+function handleSharedLinkReset(){
+  try{
+    const sp = new URLSearchParams(location.search);
+    const shared = sp.get("shared");
+    const did = sp.get("did");
+
+    if(shared === "1"){
+      const my = getOrCreateDeviceId();
+
+      // 공유 링크로 들어온 기기는 0점
+      const isOtherDevice = (!did || !my || my === "na" || (did !== my));
+      if(isOtherDevice){
+        try{
+          localStorage.removeItem(LS_LAST_SCORE);
+          localStorage.removeItem(LS_LAST_AT);
+          localStorage.removeItem(LS_LAST_EXP);
+          localStorage.removeItem(LS_LAST_SESSION);
+          localStorage.setItem(LS_SHARED_VIEW, "1");
+        }catch(e){}
+      }
+
+      // 피라미터 제거
+      try{
+        sp.delete("shared"); sp.delete("did");
+        const newUrl = location.pathname + (sp.toString() ? ("?" + sp.toString()) : "") + location.hash;
+        history.replaceState(null, "", newUrl);
+      }catch(e){}
+    }
+  }catch(e){}
+}
+
+handleSharedLinkReset();
+
+/*** * 사파리/크롬 주소창 보정 ***/
+function setVh(){
+  const vv = window.visualViewport;
+  const h = vv ? vv.height : window.innerHeight;   
+  document.documentElement.style.setProperty('--vh', (h * 0.01) + 'px');
+}
+
+setVh();
+
+window.addEventListener('resize', setVh);
+window.addEventListener('orientationchange', setVh);
+
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', setVh);
+  window.visualViewport.addEventListener('scroll', setVh); 
+}
+
+/*** 연결 ***/
+const getCASES = ()=> Array.isArray(window.CASES) ? window.CASES : [];
+const getSCENARIOS = ()=> (window.SCENARIOS && typeof window.SCENARIOS === "object") ? window.SCENARIOS : {};
+const getCATS = ()=> (window.DATA_CATEGORIES && typeof window.DATA_CATEGORIES === "object") ? window.DATA_CATEGORIES : {};
+
+/*** 쉬운 말로 ***/
+function easyText(str){
+  const s = String(str ?? "");
+  if(!s.trim()) return s;
+
+  const phrase = [
+    [/급함·비밀·재촉은\s*멈춤\s*신호예요\.?/g, "지금 당장 하라고 재촉하거나 ‘비밀’이라 하면 사기(피싱)일 가능성이 커요!"],
+    [/급함\/링크\/인증\/송금 요구는\s*‘멈춤’\s*신호예요\.?/g, "재촉 + 주소(링크/URL) + 인증번호(OTP) + 돈 이야기가 나오면, 사기(피싱)일 가능성이 커요!"],
+    [/멈춤\s*→\s*공식\s*경로\s*확인/g, "멈추기 → 공식 채널로 다시 확인하기(검증)"],
+    [/기존 번호·공식 채널로 재확인/g, "저장된 번호/공식 번호로 다시 전화해서 확인(콜백)"],
+    [/링크 대신 공식 앱\/웹 직접 접속/g, "문자에 있는 주소(링크/URL)는 누르지 말고, 공식 앱/홈페이지를 직접 열기"],
+    [/OTP·신분증·비밀번호는 공유 금지/g, "인증번호(OTP)·신분증·비밀번호는 절대 알려주지 않기"],
+  ];
+
+  let out = s;
+  for(const [re, rep] of phrase) out = out.replace(re, rep);
+
+  const word = [
+    [/보이스피싱/g, "전화 사기(보이스피싱)"],
+    [/스미싱/g, "문자 사기(스미싱)"],
+    [/피싱/g, "사기(피싱)"],
+    [/\bOTP\b/g, "인증번호(OTP)"],
+    [/URL/g, "주소(URL)"],
+    [/도메인/g, "주소(도메인)"],
+    [/링크/g, "주소(링크)"],
+    [/콜백/g, "다시 전화 확인(콜백)"],
+    [/검증/g, "다시 확인(검증)"],
+  ];
+  for(const [re, rep] of word) out = out.replace(re, rep);
+
+  return out;
+}
+
+/*** 체험 실행 중단 ***/
+function makeRun(){
+  return {
+    aborted:false,
+    timeouts:new Set(),
+    intervals:new Set(),
+    audios:new Set(),
+    audioCtxs:new Set(),
+    abort(){
+      if(this.aborted) return;
+      this.aborted = true;
+      for(const t of this.timeouts) clearTimeout(t);
+      for(const i of this.intervals) clearInterval(i);
+      this.timeouts.clear(); this.intervals.clear();
+      for(const a of this.audios){ try{a.pause(); a.currentTime=0;}catch(e){} }
+      this.audios.clear();
+      for(const c of this.audioCtxs){ try{c.close()}catch(e){} }
+      this.audioCtxs.clear();
+      try{ document.getElementById("quizOverlay").classList.remove("show"); }catch(e){}
+      try{ document.getElementById("quizOverlay").classList.remove("oxMode"); }catch(e){}
+      try{ document.getElementById("quizOverlay").classList.remove("callMode"); }catch(e){}
+    },
+    setTimeout(fn, ms){
+      const id = setTimeout(()=>{ this.timeouts.delete(id); if(!this.aborted) fn(); }, ms);
+      this.timeouts.add(id); return id;
+    },
+    setInterval(fn, ms){
+      const id = setInterval(()=>{ if(this.aborted) return; fn(); }, ms);
+      this.intervals.add(id); return id;
+    }
+  };
+}
+
+const state = {
+  route:{ name:"home", params:{} },
+  history:[],
+  analytics:{ sessions:[], totals:null },
+  profile:{ gender:null, age:null, name:"", workplace:"" },
+  pendingExp:null,
+  run:null,
+
+  /* O/X 체험 상태 */
+  ox:{
+    session:null
+  }
+};
+
+const DIMENSIONS = [
+  { key:"verify", label:"검증/콜백", tip:"저장된 번호·공식 번호로 다시 전화해 확인(콜백)" },
+  { key:"link",   label:"링크/도메인", tip:"문자 속 주소(링크/URL)는 누르지 말고, 공식 앱/홈페이지를 직접 열기" },
+  { key:"otp",    label:"인증/개인정보", tip:"인증번호(OTP)·신분증·비밀번호는 절대 알려주지 않기" },
+  { key:"urgency",label:"긴급/압박", tip:"재촉하거나 ‘비밀’이라 하면 사기(피싱) 의심" },
+  { key:"money",  label:"금전/지시", tip:"돈 보내기/결제/대리구매 요구는 먼저 사실 확인" },
+  { key:"context",label:"맥락 점검", tip:"평소 말투/요청 방식이 다르면 한 번 더 의심" },
+];
+
+function resetTotals(){
+  state.analytics.totals = Object.fromEntries(DIMENSIONS.map(d=>[d.key, {sum:0, max:0}]));
+}
+resetTotals();
+
+const appEl = document.getElementById("app");
+const main = document.getElementById("main");
+
+/*** 전체화면 모드 ***/
+function applyLayoutMode(routeName){
+  const full = (routeName === "push_gate" || routeName === "exp_messenger" || routeName === "exp_call");
+  appEl.classList.toggle("fullscreen", full);
+}
+
+/*** 라우팅 ***/
+function isExperienceRoute(name){
+  return (name === "exp_messenger" || name === "exp_call" || name === "push_gate" || name === "ox_intro");
+}
+function go(name, params = {}, replace = false){
+  const leavingExp = isExperienceRoute(state.route.name) && !isExperienceRoute(name);
+  if(leavingExp && state.run){ state.run.abort(); state.run = null; }
+
+  if(!replace) state.history.push({...state.route});
+  state.route = { name, params };
+  applyLayoutMode(name);
+  render();
+  main.scrollTop = 0;
+}
+function backToCaseList(){
+  if(state.run){ state.run.abort(); state.run=null; }
+  go("case_list",{},true);
+}
+function back(){
+  const prev = state.history.pop();
+  if(prev){
+    if(isExperienceRoute(state.route.name) && state.run){ state.run.abort(); state.run=null; }
+    state.route = prev;
+    applyLayoutMode(prev.name);
+    render();
+    main.scrollTop = 0;
+  }else{
+    go("case_list", {}, true);
+  }
+}
+
+/*** 배너 ***/
+const banner = document.getElementById("banner");
+const bannerTitle = document.getElementById("bannerTitle");
+const bannerBody = document.getElementById("bannerBody");
+let bannerTimer = null;
+let stickyNotifyTimer = null;
+
+function clearStickyNotifyTimer(){
+  if(stickyNotifyTimer){ clearTimeout(stickyNotifyTimer); stickyNotifyTimer = null; }
+}
+
+/* 링크 사운드 재생 */
+function playUrlAudio(url, {loop=false, volume=1} = {}, run){
+  try{
+    if(!url || !String(url).trim()) return null;
+    const a = new Audio(url);
+    a.loop = !!loop;
+    a.volume = Math.max(0, Math.min(1, volume));
+    run?.audios?.add(a);
+    a.play().catch(()=>{});
+    return a;
+  }catch(e){ return null; }
+}
+
+/* 알림 소리 */
+function loudNotify(run){
+  if(SOUND_NOTIFY_URL && String(SOUND_NOTIFY_URL).trim()){
+    playUrlAudio(SOUND_NOTIFY_URL, {loop:false, volume:1}, run);
+    return;
+  }
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    run?.audioCtxs?.add(ctx);
+
+    const now = ctx.currentTime;
+    const o1 = ctx.createOscillator();
+    const o2 = ctx.createOscillator();
+    const g = ctx.createGain();
+
+    o1.type = "triangle";
+    o2.type = "sine";
+    o1.frequency.setValueAtTime(880, now);
+    o2.frequency.setValueAtTime(1320, now);
+
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.exponentialRampToValueAtTime(0.18, now + 0.015);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + 0.14);
+
+    g.gain.setValueAtTime(0.0001, now + 0.18);
+    g.gain.exponentialRampToValueAtTime(0.16, now + 0.195);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + 0.36);
+
+    o1.connect(g); o2.connect(g); g.connect(ctx.destination);
+    o1.start(now); o2.start(now);
+    o1.stop(now + 0.40); o2.stop(now + 0.40);
+
+    setTimeout(()=>{ try{ctx.close()}catch(e){} }, 500);
+  }catch(e){}
+}
+
+function showBanner(title, body, sticky=false){
+  bannerTitle.textContent = title || "알림";
+  bannerBody.textContent = body || "";
+  banner.classList.add("show");
+  clearTimeout(bannerTimer);
+  if(!sticky){
+    bannerTimer = setTimeout(()=> banner.classList.remove("show"), 1800);
+  }
+}
+function hideBanner(){
+  clearTimeout(bannerTimer);
+  banner.classList.remove("show");
+}
+
+/*** 유틸 ***/
+function escapeHtml(str){
+  return (str ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;");
+}
+function catChip(catKey){
+  const c = getCATS()[catKey];
+  const cls = c?.chip || "blue";
+  const label = c?.label || catKey;
+  return `<span class="chip ${cls}">${escapeHtml(label)}</span>`;
+}
+function nowTime(){
+  return new Date().toLocaleTimeString("ko-KR",{hour:"2-digit",minute:"2-digit"});
+}
+function nowClock(){
+  return new Date().toLocaleTimeString("ko-KR",{hour:"2-digit",minute:"2-digit", hour12:false});
+}
+function nowDateLabel(){
+  return new Date().toLocaleDateString("ko-KR",{month:"long", day:"numeric", weekday:"long"});
+}
+function isLikelyUrl(text){ return /https?:\/\/|example\.|www\./i.test(text || ""); }
+function makeClickableText(text){
+  const t = String(text||"");
+  if(!isLikelyUrl(t)) return escapeHtml(t);
+  const m = t.match(/(https?:\/\/[^\s]+|example\.[^\s]+)/i);
+  if(!m) return escapeHtml(t);
+  const url = m[1];
+  const before = escapeHtml(t.slice(0, m.index));
+  const after = escapeHtml(t.slice(m.index + url.length));
+  return `${before}<button class="linkBtn" data-url="${escapeHtml(url)}">${escapeHtml(url)}</button>${after}`;
+}
+function toNaturalReply(choiceText){
+  const t = String(choiceText||"").trim();
+  if(!t) return "일단 공식 채널로 다시 확인해볼게요.";
+  if(/콜백|기존|대표번호|내부 채널|끊고/.test(t)) return "잠깐만요. 끊고 공식 번호로 다시 전화해서 확인할게요.";
+  if(/무시|삭제|차단/.test(t)) return "이건 바로 차단하고, 필요하면 공식 경로로 확인할게요.";
+  if(/링크|클릭|URL/.test(t)) return "링크는 누르지 않고 공식 앱이나 홈페이지에서 직접 확인해볼게요.";
+  if(/신고/.test(t)) return "캡처해두고 바로 신고부터 할게요.";
+  if(/송금|결제|입금|돈|구매/.test(t)) return "금전 요구는 진행 안 하고, 먼저 사실 확인부터 할게요.";
+  if(/인증|OTP|비밀번호|신분증/.test(t)) return "인증번호나 개인정보는 절대 공유하지 않을게요.";
+  return t.endsWith("요") ? t : (t + " 할게요.");
+}
+
+/* === O / X 체험용 문제 데이터 === */
+const OX_QUESTIONS = [
+  /* O: 택배 반송 + 단축링크 + 재촉 + 010 */
+  {
+    id:"ox_delivery_return",
+    typeLabel:"택배 반송(단축링크/재촉)",
+    answer:"O",
+    marks:["sender","link","urgency","context"],
+    suspectPoints:"• 휴대폰번호(010) 발신 + [Web발신] + 단축링크 + ‘오늘/마감’ 재촉 + 안내 문구 어색함",
+    messageHtml: `
+      <div class="oxMsgCard">
+        <div class="oxMsgTop"><span class="oxMark" data-ox="sender">010-1234-5678</span></div>
+        <div class="oxMsgBody">
+          <div class="oxMsgBubble">
+            <div class="oxWeb">[Web발신]</div>
+            <div class="oxText">
+              [OO택배] 고객님 택배 배송 불가<br>
+              즉시 배송지 변경 부탁드립니다<br>
+              <span class="oxMark oxUrgency" data-ox="urgency">주소 확인</span>미완료 시 반송 처리됩니다.<br>
+              주소확인: <span class="oxLink" data-ox="link">https://reurl.kr/464D5BC9KT</span><br>
+            </div>
+          </div>
+        </div>
+      </div>
+    `,
+    explainRight:"택배를 미끼로 ‘오늘/마감’ 압박 + 단축링크 클릭 유도는 스미싱 대표 패턴이에요. 택배는 문자 링크가 아니라 택배사 공식 앱/홈페이지에서 직접 조회가 안전해요.",
+    explainWrong:"택배 문자는 자주 쓰는 미끼예요. ‘주소 확인’ 같은 이유로 링크 클릭을 강요하면 일단 멈추고, 택배사 앱/웹(직접 접속)으로 확인해야 해요."
+  },
+
+  /* O: 기관 사칭 + 도메인 불일치 + 재촉 */
+  {
+    id:"ox_agency_impersonation",
+    typeLabel:"기관 사칭(도메인 불일치)",
+    answer:"O",
+    marks:["sender","link","urgency","context"],
+    suspectPoints:"• 010 발신 • ‘가산금/압류’ 협박 • 기관명과 무관한 단축링크(도메인 불일치) • 오탈자/문장 어색함",
+    messageHtml: `
+      <div class="oxMsgCard">
+        <div class="oxMsgTop"><span class="oxMark" data-ox="sender">010-7788-9900</span></div>
+        <div class="oxMsgBody">
+          <div class="oxMsgBubble">
+            <div class="oxWeb">[Web발신]</div>
+            <div class="oxText">
+              [국세청] 미납 고지 안내<br>
+              고객님 세금금액:872,899원<br>
+              <span class="oxMark oxUrgency" data-ox="urgency">미납시 가압류</span>될 수 있습니다.<br>
+              조회 및 납부: <span class="oxLink" data-ox="link">https://bit.ly/7kTAX-OK</span><br>
+            </div>
+          </div>
+        </div>
+      </div>
+    `,
+    explainRight:"기관은 보통 개인 휴대폰번호(010)로 ‘링크 클릭’을 요구하지 않아요. ‘오늘까지/압류’로 겁을 주는 문구도 대표적인 피싱 신호예요.",
+    explainWrong:"기관 사칭은 ‘불이익/압류’로 공포를 유발해요. 링크 대신 기관 공식 홈페이지(직접 접속)나 대표번호로 확인해야 해요."
+  },
+
+  /* O: 청첩장(지인 사칭) + 링크 */
+  {
+    id:"ox_wedding_invite",
+    typeLabel:"청첩장(지인 사칭/링크)",
+    answer:"O",
+    marks:["sender","link","context"],
+    suspectPoints:"• 모르는 번호 • 단축링크 • 대화 맥락 없이 ‘청첩장’만 던짐",
+    messageHtml: `
+      <div class="oxMsgCard">
+        <div class="oxMsgTop"><span class="oxMark" data-ox="sender">010-4455-6677</span></div>
+        <div class="oxMsgBody">
+          <div class="oxMsgBubble">
+            <div class="oxWeb">[Web발신]</div>
+            <div class="oxText">
+              [청첩장]<br>
+              많은 참석과 축하 부탁드립니다<br>
+              모바일 청첩장 보기: <span class="oxLink" data-ox="link">https://reurl.kr/WED-2m9s</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    `,
+    explainRight:"지인 사칭 + 단축링크는 흔한 스미싱 패턴이에요. 링크를 누르기 전에 지인에게 ‘기존 연락처’로 먼저 확인하세요.",
+    explainWrong:"‘청첩장/초대장’은 호기심을 노려요. 링크 클릭 대신 전화/기존 대화방으로 사실 확인이 먼저예요."
+  },
+
+  /* O: 부고장 + 즉시 확인 + 링크 */
+  {
+    id:"ox_obituary",
+    typeLabel:"부고장(감정 자극/즉시 확인)",
+    answer:"O",
+    marks:["sender","link","urgency","context"],
+    suspectPoints:"• 감정 자극(부고) • ‘즉시 확인’ 압박 • 단축링크 • 발신번호/맥락 불명확",
+    messageHtml: `
+      <div class="oxMsgCard">
+        <div class="oxMsgTop"><span class="oxMark" data-ox="sender">010-3322-1100</span></div>
+        <div class="oxMsgBody">
+          <div class="oxMsgBubble">
+            <div class="oxWeb">[Web발신]</div>
+            <div class="oxText">
+              [부고]<br>
+              사랑하는 조부께서 별세하셨기에<br>
+              삼가 알려드립니다.<br>
+              <span class="oxMark oxUrgency" data-ox="urgency">장례식장 주소</span>:
+              <span class="oxLink" data-ox="link">https://tinyurl.com/bo-go-dk</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    `,
+    explainRight:"부고장은 ‘급한 마음’을 이용해 클릭을 유도해요. 휴대폰번호 발신 + 링크 조합이면 특히 조심해야 해요.",
+    explainWrong:"부고 내용은 사실 확인(전화)부터! 링크 클릭이나 앱 설치/권한 요청이 나오면 즉시 중단하세요."
+  },
+
+  /* O: 환급금 + 링크 + 개인정보 유도 */
+  {
+    id:"ox_loan_refund",
+    typeLabel:"환급금(금액 제시/링크)",
+    answer:"O",
+    marks:["sender","link","money","context"],
+    suspectPoints:"• ‘환급금’으로 유혹 • 금액 제시 • 단축링크로 서류/본인확인 유도",
+    messageHtml: `
+      <div class="oxMsgCard">
+        <div class="oxMsgTop"><span class="oxMark" data-ox="sender">010-9090-1212</span></div>
+        <div class="oxMsgBody">
+          <div class="oxMsgBubble">
+            <div class="oxWeb">[Web발신]</div>
+            <div class="oxText">
+              [민원24] 쓰레기 무단투기로<br>
+              단속되어 과태료가 부과되었습니다.<br>
+              과태료 확인: <span class="oxLink" data-ox="link">https://reurl.kr/RF-31a2</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    `,
+    explainRight:"‘환급금/금액 제시’ + 링크는 클릭을 유도하는 전형적 수법이에요. 금융 관련은 반드시 공식 앱/대표번호로 확인하세요.",
+    explainWrong:"환급/대출은 공식 경로 확인이 원칙이에요. 문자 링크로 서류 확인/인증 요구가 나오면 중단하세요."
+  },
+];
+
+/* === 카드 함수 === */
+function fmtKoreanDateTime(ts){
+  const d = new Date(Number(ts||0));
+  if(!Number.isFinite(d.getTime())) return "—";
+  return d.toLocaleString("ko-KR", {year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit"});
+}
+function scoreRangeLabel(score){
+  const s = Number(score||0);
+  if(!Number.isFinite(s)) return {label:"—", idx:-1};
+  if(s >= 85) return {label:"양호", idx:3};
+  if(s >= 70) return {label:"보통", idx:2};
+  if(s >= 55) return {label:"주의", idx:1};
+  return {label:"취약", idx:0};
+}
+
+/* === 마지막 결과 복원 후 결과로 이동 === */
+function restoreLastResultToState(){
+  try{
+    const expId = localStorage.getItem(LS_LAST_EXP);
+    const sesJson = localStorage.getItem(LS_LAST_SESSION);
+    if(!expId || !sesJson) return null;
+    const ses = JSON.parse(sesJson);
+    if(!ses || ses.expId !== expId || !Array.isArray(ses.picks)) return null;
+
+    // 덮어쓰기
+    state.analytics.sessions = (state.analytics.sessions || []).filter(s => s?.expId !== expId);
+    state.analytics.sessions.push(ses);
+    return expId;
+  }catch(e){
+    return null;
+  }
+}
+
+/*** 공유 ***/
+function prevention3Lines(){
+  return [
+    easyText("1) 급하면 멈추기: 링크/인증/송금 요구는 일단 정지"),
+    easyText("2) 공식 경로 확인: 앱/웹 직접 접속 또는 대표번호·기존 저장번호로 콜백해 확인"),
+    easyText("3) 기록·차단·신고: 캡처/번호/계좌·링크 확보 후 신고")
+  ].join("\n");
+}
+async function shareApp(message){
+  const title = "피싱 예방 체험";
+  const base = message || "피싱 예방 체험 같이 해봐요.";
+  const text = `${base}\n\n[피싱 범죄예방수칙 요약]\n${prevention3Lines()}`;
+
+  /* 공유 링크는 다른 기기에서 0점 */
+  let url = location.href;
+  try{
+    const did = getOrCreateDeviceId();
+    const u = new URL(location.href);
+    u.searchParams.set("shared","1");
+    u.searchParams.set("did", String(did||""));
+    url = u.toString();
+  }catch(e){}
+
+  try{
+    if(navigator.share){
+      await navigator.share({ title, text, url });
+      return true;
+    }
+  }catch(e){ return false; }
+  try{
+    await navigator.clipboard.writeText(`${text}\n\n${url}`);
+    showBanner("공유", "링크가 클립보드에 복사됐어요.", false);
+    return true;
+  }catch(e){
+    showBanner("공유", "이 기기에서는 자동 공유가 어려워요. 주소를 직접 복사해 주세요.", false);
+    return false;
+  }
+}
+
+/*** 메뉴 ***/
+const menuOverlay = document.getElementById("menuOverlay");
+document.getElementById("menuBtn").onclick = ()=> menuOverlay.classList.add("show");
+document.getElementById("menuClose").onclick = ()=> menuOverlay.classList.remove("show");
+menuOverlay.addEventListener("click", (e)=>{ if(e.target===menuOverlay) menuOverlay.classList.remove("show"); });
+
+document.getElementById("goHomeMenu").onclick = ()=>{
+  menuOverlay.classList.remove("show");
+  go("home",{},true);
+};
+document.getElementById("goExpMenu").onclick = ()=>{
+  menuOverlay.classList.remove("show");
+  go("case_list",{},true);
+};
+const PROMO_VIDEO_URL = "https://naver.com";
+
+document.getElementById("promoVideoMenu").onclick = ()=>{
+  menuOverlay.classList.remove("show");
+  window.open(PROMO_VIDEO_URL, "_blank", "noopener,noreferrer");
+};
+document.getElementById("shareMenu").onclick = async ()=>{
+  menuOverlay.classList.remove("show");
+  await shareApp("가족/지인에게 공유할게요. 이 링크로 같이 체험해봐요!");
+};
+
+/*** 폴케어 클릭하면 집으로 ***/
+(function(){
+  const brandHome = document.getElementById("brandHome");
+  if(!brandHome) return;
+
+  const pressOn  = ()=> brandHome.classList.add("polcare-brand-press");
+  const pressOff = ()=> brandHome.classList.remove("polcare-brand-press");
+
+  brandHome.addEventListener("mousedown", pressOn);
+  brandHome.addEventListener("mouseup", pressOff);
+  brandHome.addEventListener("mouseleave", pressOff);
+  brandHome.addEventListener("touchstart", pressOn, {passive:true});
+  brandHome.addEventListener("touchend", pressOff, {passive:true});
+  brandHome.addEventListener("touchcancel", pressOff, {passive:true});
+
+  brandHome.addEventListener("click", (e)=>{
+    e.preventDefault();
+    e.stopPropagation();
+    try{ document.getElementById("menuOverlay")?.classList.remove("show"); }catch(_){}
+    try{ document.getElementById("creditsOverlay")?.classList.remove("show"); }catch(_){}
+    try{ hideBanner(); }catch(_){}
+    go("home", {}, true);
+  });
+})();
+
+/*** 만든이(크레딧) ***/
+(function(){
+  const creditsOverlay = document.getElementById("creditsOverlay");
+  const creditsClose = document.getElementById("creditsClose");
+  const creditsRoll = document.getElementById("creditsRoll");
+
+  const creditsLines = [
+    "폴케어(Pol_Care)",
+    "<span class='small'>피싱 범죄예방 모의체험</span>",
+    "",
+    "기획 / 제작",
+    "<span class='small'>전남경찰청 영암경찰서 범죄예방대응과</span>",
+    "",
+    "디자인 / 아이디어 / 홍보",
+    "<span class='small'>김진영 · 김은아</span>",
+    "",
+    "시나리오",
+    "<span class='small'>전남경찰청 영암경찰서 범죄예방대응과 · 수사과</span>",
+    "",
+    "Special Thanks",
+    "<span class='small'>영암군청 · 농협은행(영암군지부) · 광주은행(영암지점) · 새마을금고 · 메가커피(영암점 · 삼호점) · 지역사회 단체 등</span>",
+  ];
+
+  function openCredits(){
+    creditsRoll.innerHTML = creditsLines.map(l=>`<div>${l}</div>`).join("");
+    creditsRoll.style.animation = "none";
+    void creditsRoll.offsetHeight;
+    creditsRoll.style.animation = "";
+    creditsOverlay.classList.add("show");
+  }
+  function closeCredits(){ creditsOverlay.classList.remove("show"); }
+
+  creditsClose.onclick = closeCredits;
+  creditsOverlay.addEventListener("click",(e)=>{ if(e.target===creditsOverlay) closeCredits(); });
+
+  const creditsBtn = document.getElementById("creditsmenu") || document.getElementById("creditsMenu");
+  if(creditsBtn){
+    creditsBtn.onclick = ()=>{
+      menuOverlay.classList.remove("show");
+      openCredits();
+    };
+  }
+  window.openCredits = openCredits;
+})();
+
+/*** 퀴즈 팝업 ***/
+const quizOverlay = document.getElementById("quizOverlay");
+const qPromptEl = document.getElementById("qPrompt");
+const qChoicesEl = document.getElementById("qChoices");
+const qFeedback = document.getElementById("qFeedback");
+const fbTitle = document.getElementById("fbTitle");
+const fbBody = document.getElementById("fbBody");
+const quizProgressEl = document.getElementById("quizProgress");
+const qVisualEl = document.getElementById("qVisual");
+const quizHeadTitleEl = document.getElementById("quizHeadTitle");
+const oxExitBtn = document.getElementById("oxExitBtn");
+
+/* 1/3 표시하기 */
+function setQuizProgress(idx, total){
+  if(!quizProgressEl) return;
+  const t = Number(total || 0);
+  const i = Number(idx || 0);
+  if(t > 1 && i > 0){
+    quizProgressEl.textContent = `${i}/${t}`;
+    quizProgressEl.classList.remove("hidden");
+  }else{
+    quizProgressEl.textContent = "";
+    quizProgressEl.classList.add("hidden");
+  }
+}
+
+/* 퀴즈 슬라이드 접고 펼치기 */
+const quizToggleBtn = document.getElementById("quizSheetToggle");
+let quizCollapsed = false;
+
+function setQuizCollapsed(v){
+  quizCollapsed = !!v;
+  quizOverlay.classList.toggle("collapsed", quizCollapsed);
+  if(quizToggleBtn){
+    quizToggleBtn.setAttribute("aria-expanded", String(!quizCollapsed));
+  }
+}
+if(quizToggleBtn){
+  quizToggleBtn.addEventListener("click", (e)=>{
+    e.preventDefault();
+    e.stopPropagation();
+    setQuizCollapsed(!quizCollapsed);
+  });
+}
+quizOverlay.addEventListener("click", (e)=>{ e.stopPropagation(); });
+
+/* 보기 순서 정답 위치 랜덤 */
+function shuffleArray(arr){
+  const a = [...arr];
+  for(let i=a.length-1; i>0; i--){
+    const j = Math.floor(Math.random() * (i+1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// 정답과 판별
+function isCorrectChoice(c){
+  return Number(c?.score || 0) > 0;
+}
+
+// qNo: 1,2,3... (progressInfo.idx)
+function orderChoicesWithAlternatingCorrect(choices, qNo){
+  const list = Array.isArray(choices) ? [...choices] : [];
+  const n = list.length;
+  if(n <= 1) return list;
+
+  const correct = list.filter(isCorrectChoice);
+  const wrong   = list.filter(c => !isCorrectChoice(c));
+
+  // 정답과 오답 구성이 애매하면 그냥
+  if(correct.length === 0 || wrong.length === 0) return shuffleArray(list);
+
+  let targetIndex = Math.floor(Math.random() * n);
+  targetIndex = targetIndex % n;
+
+  const correctShuffled = shuffleArray(correct);
+  const wrongShuffled   = shuffleArray(wrong);
+
+  const out = new Array(n).fill(null);
+  out[targetIndex] = correctShuffled.shift();
+
+  const rest = shuffleArray([...correctShuffled, ...wrongShuffled]);
+  for(let i=0; i<n; i++){
+    if(out[i] == null) out[i] = rest.shift();
+  }
+  return out;
+}
+
+/* O/X 하이라이트 유틸 */
+function oxClearHighlights(){
+  if(!qVisualEl) return;
+  qVisualEl.querySelectorAll("[data-ox]").forEach(el=>{
+    el.classList.remove("hi");
+  });
+  qVisualEl.querySelectorAll(".oxLink").forEach(el=>{
+    el.classList.remove("hi");
+  });
+  qVisualEl.querySelectorAll(".oxUrgency").forEach(el=>{
+    el.classList.remove("hi");
+  });
+}
+function oxApplyHighlights(marks){
+  if(!qVisualEl) return;
+  const set = new Set(Array.isArray(marks)?marks:[]);
+  qVisualEl.querySelectorAll("[data-ox]").forEach(el=>{
+    const k = el.getAttribute("data-ox");
+    if(set.has(k)) el.classList.add("hi");
+  });
+  // 링크/긴급 전용 효과
+  if(set.has("link")){
+    qVisualEl.querySelectorAll(".oxLink").forEach(el=> el.classList.add("hi"));
+  }
+  if(set.has("urgency")){
+    qVisualEl.querySelectorAll(".oxUrgency").forEach(el=> el.classList.add("hi"));
+  }
+}
+
+/* === O / X 퀴즈 표시 === */
+function showOXQuiz(q, run, progressInfo){
+  return new Promise((resolve)=>{
+    if(run?.aborted) return resolve(null);
+
+    // OX 모드 진입
+    quizOverlay.classList.remove("callMode");
+    quizOverlay.classList.add("oxMode");
+    if(quizHeadTitleEl) quizHeadTitleEl.textContent = "O / X 문제";
+
+    // 문제 나가기도 소개 화면으로
+    if(oxExitBtn){
+      oxExitBtn.onclick = (e)=>{
+        e.preventDefault();
+        e.stopPropagation();
+        try{ quizOverlay.classList.remove("show"); }catch(_){}
+        try{ quizOverlay.classList.remove("oxMode"); }catch(_){}
+        try{ setQuizCollapsed(false); }catch(_){}
+        try{ if(state.run){ state.run.abort(); state.run = null; } }catch(_){}
+        go("ox_intro", {}, true);
+        return resolve(null);
+      };
+    }
+
+    // 기존 다음버튼은 사용 안 함
+    const nextBtn = document.getElementById("quizNextBtn");
+    if(nextBtn){
+      nextBtn.classList.remove("on");
+      nextBtn.disabled = true;
+      nextBtn.onclick = null;
+    }
+
+    // 상태 초기화
+    qFeedback.classList.remove("show");
+    fbBody.innerHTML = "";
+    fbTitle.textContent = "피드백";
+    setQuizProgress(progressInfo?.idx, progressInfo?.total);
+
+    const idx = Number(progressInfo?.idx || 1);
+    qPromptEl.textContent = `Q${idx}. 이 메시지는 스미싱일까요?`;
+
+    // 시각영역
+    if(qVisualEl){
+      qVisualEl.innerHTML = q.messageHtml || "";
+    }
+    oxClearHighlights();
+
+    // 선택지: O / X
+    qChoicesEl.innerHTML = "";
+    qChoicesEl.style.display = "";
+    const row = document.createElement("div");
+    row.className = "oxChoiceRow";
+
+    const btnO = document.createElement("button");
+    btnO.className = "oxPickBtn";
+    btnO.textContent = "네(O)";
+
+    const btnX = document.createElement("button");
+    btnX.className = "oxPickBtn";
+    btnX.textContent = "아니요(X)";
+
+    row.appendChild(btnO);
+    row.appendChild(btnX);
+    qChoicesEl.appendChild(row);
+
+    let attempts = 0;
+    let firstTryCorrect = null;
+    let locked = false;
+
+    function resetForRetry(){
+      locked = false;
+      btnO.classList.remove("selected");
+      btnX.classList.remove("selected");
+      qFeedback.classList.remove("show");
+      fbBody.innerHTML = "";
+      oxClearHighlights();
+      qChoicesEl.style.display = "";
+    }
+
+    function showFeedback(userPick){
+      attempts++;
+      const correct = (userPick === q.answer);
+      if(firstTryCorrect === null) firstTryCorrect = correct;
+
+      // 피드백
+      qChoicesEl.style.display = "none";
+
+      // 직관적 표시
+      oxApplyHighlights(q.marks || []);
+
+      // 제목과 본문
+      fbTitle.textContent = correct ? "정답입니다!" : "틀렸습니다!";
+      const why = correct ? (q.explainRight||"") : (q.explainWrong||"");
+
+      const actionLabel = correct
+        ? ((idx >= Number(progressInfo?.total||0)) ? "결과 보기" : "다음 문제풀기")
+        : "다시풀기";
+
+      const actionClass = correct ? "next" : "retry";
+
+      /* 문제별 포인트 표시 */
+      const pointsTitle = (q.answer === "X") ? "확인 포인트(정상 신호)" : "의심 포인트(시각 표시)";
+      const pointsText = (q.answer === "X")
+        ? (q.safePoints || "• 단축링크 없음 • 개인정보/OTP/결제 요구 없음 • 공식 경로(직접 접속) 안내")
+        : (q.suspectPoints || "• 휴대폰번호(010)·[Web발신] · 단축링크(URL) · ‘지금/오늘/즉시’ 압박 · OTP/개인정보/금전 요구");
+
+      fbBody.innerHTML = `
+  <div class="oxFbWrap">
+    <div>${escapeHtml(easyText(why))}</div>
+
+    <div class="why"><b>${escapeHtml(pointsTitle)}</b><br>
+      ${escapeHtml(easyText(pointsText))}
+    </div>
+
+    <div class="oxActionRow">
+      <button type="button" class="oxActionBtn ${actionClass}" id="oxActionBtn">${escapeHtml(actionLabel)}</button>
+    </div>
+  </div>
+`;
+      qFeedback.classList.add("show");
+
+      const act = document.getElementById("oxActionBtn");
+      if(act){
+        act.onclick = ()=>{
+          if(run?.aborted) return resolve(null);
+          if(correct){
+            quizOverlay.classList.remove("show");
+            resolve({
+              id: q.id,
+              typeLabel: q.typeLabel,
+              firstTryCorrect: !!firstTryCorrect,
+              attempts,
+              answer: q.answer,
+              explainRight: q.explainRight || "",
+              explainWrong: q.explainWrong || ""
+            });
+          }else{
+            resetForRetry();
+          }
+        };
+      }
+    }
+
+    function onPick(pick){
+      if(run?.aborted) return resolve(null);
+      if(locked) return;
+      locked = true;
+
+      btnO.classList.toggle("selected", pick === "O");
+      btnX.classList.toggle("selected", pick === "X");
+
+      showFeedback(pick);
+    }
+
+    btnO.onclick = ()=> onPick("O");
+    btnX.onclick = ()=> onPick("X");
+
+    // 시트 열기
+    setQuizCollapsed(false);
+    quizOverlay.classList.add("show");
+  });
+}
+
+
+
+/* === 전화형 체험: 음성 종료 후 슬라이드 문제(대화 대신) === */
+function buildCallQuizItems(exp){
+  if(Array.isArray(exp?.callQuiz) && exp.callQuiz.length){
+    return exp.callQuiz;
+  }
+  const steps = Array.isArray(exp?.steps) ? exp.steps : [];
+  const items = [];
+  for(let i=0; i<steps.length; i++){
+    const s = steps[i];
+    if(s?.type !== "q") continue;
+
+    // 핵심 대사: 직전 other line들을 묶어서 질문으로 사용
+    let core = String(s.core || "").trim();
+    if(!core){
+      const prev = steps[i-1];
+      const prev2 = steps[i-2];
+      const lines = [];
+      if(prev2?.type==="line" && prev2.from==="other") lines.push(prev2.text);
+      if(prev?.type==="line" && prev.from==="other") lines.push(prev.text);
+      core = lines.filter(Boolean).join(" ") || s.prompt || "상대의 말에 어떻게 답할까요?";
+    }
+
+    const choices = Array.isArray(s.choices) ? s.choices : [];
+    const two = choices.slice(0,2);
+    items.push({ core, prompt: s.prompt || "", choices: two.length ? two : choices });
+    if(items.length >= 4) break;
+  }
+  return items;
+}
+
+function showCallSlideQuiz(item, run, progressInfo){
+  return new Promise((resolve)=>{
+    if(run?.aborted) return resolve(null);
+
+    // callMode 진입
+    quizOverlay.classList.remove("oxMode");
+    quizOverlay.classList.add("callMode");
+    if(quizHeadTitleEl) quizHeadTitleEl.textContent = "전화 통화중...";
+    if(qVisualEl) qVisualEl.innerHTML = "";
+    oxClearHighlights();
+
+    // 문제 나가기 버튼
+    if(oxExitBtn){
+      oxExitBtn.onclick = (e)=>{
+        try{ e.preventDefault(); e.stopPropagation(); }catch(_){}
+        try{ quizOverlay.classList.remove("show"); }catch(_){}
+        try{ quizOverlay.classList.remove("callMode"); }catch(_){}
+        try{ setQuizCollapsed(false); }catch(_){}
+        try{ if(state.run){ state.run.abort(); state.run = null; } }catch(_){}
+        go("case_list", {}, true);
+        return resolve(null);
+      };
+    }
+
+    // 상태 초기화
+    qFeedback.classList.remove("show");
+    fbBody.innerHTML = "";
+    fbTitle.textContent = "피드백";
+    setQuizProgress(progressInfo?.idx, progressInfo?.total);
+
+    const core = String(item?.core || item?.prompt || "상대의 말에 어떻게 답할까요?").trim();
+    const safeCoreHtml = escapeHtml(easyText(core))
+  .replaceAll("&lt;br&gt;", "<br>")
+  .replaceAll("&lt;br/&gt;", "<br>")
+  .replaceAll("&lt;br /&gt;", "<br>")
+  .replaceAll("\n", "<br>");
+
+qPromptEl.innerHTML = safeCoreHtml;
+
+    // 보기
+    qChoicesEl.innerHTML = "";
+    qChoicesEl.style.display = "";
+
+    const choices = Array.isArray(item?.choices) ? item.choices : [];
+    const btns = [];
+
+    choices.slice(0,2).forEach((c)=>{
+      if(!c) return;
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "callPickBtn";
+      b.textContent = easyText(String(c.text || "").trim());
+      btns.push({btn:b, choice:c});
+      qChoicesEl.appendChild(b);
+    });
+
+    let locked = false;
+
+    function showFeedback(choice){
+      const delta = Number(choice?.score || 0);
+      const good = delta > 0;
+
+      // 피드백
+      qChoicesEl.style.display = "none";
+
+      fbTitle.textContent = good ? "좋아요 ✔" : "주의🚨";
+      const fbTextRaw = choice?.feedback || (good
+        ? "사기(피싱)일 수 있는 신호를 잘 잡았어요."
+        : "이 선택은 위험할 수 있어요. ‘멈춤 → 공식 채널로 다시 확인(검증)’이 핵심입니다.");
+      const fbText = easyText(fbTextRaw);
+
+      const whyText = choice?.why ? easyText(String(choice.why)) : "";
+
+      // 틀려도 다시풀기 없이 다음 문제로 진행
+      const actionLabel =
+        (Number(progressInfo?.idx||0) >= Number(progressInfo?.total||0)) ? "결과 보기" : "다음 문제";
+      const actionClass = "next";
+
+      fbBody.innerHTML = `
+        <div class="oxFbWrap">
+          <div>${escapeHtml(fbText)}</div>
+          ${whyText.trim() ? `<div class="why"><b>왜?</b><br>${escapeHtml(whyText)}</div>` : ``}
+          <div class="oxActionRow">
+            <button type="button" class="oxActionBtn ${actionClass}" id="callActionBtn">${escapeHtml(actionLabel)}</button>
+          </div>
+        </div>
+      `;
+      qFeedback.classList.add("show");
+
+      const act = document.getElementById("callActionBtn");
+      if(act){
+        act.onclick = ()=>{
+          if(run?.aborted) return resolve(null);
+          quizOverlay.classList.remove("show");
+          resolve({ choice, good, delta });
+        };
+      }
+    }
+
+    btns.forEach(({btn, choice})=>{
+      btn.onclick = ()=>{
+        if(run?.aborted) return resolve(null);
+        if(locked) return;
+        locked = true;
+        btns.forEach(x=> x.btn.classList.toggle("selected", x.choice===choice));
+        showFeedback(choice);
+      };
+    });
+
+    setQuizCollapsed(false);
+    quizOverlay.classList.add("show");
+  });
+}
+
+/* === 기존 showQuiz === */
+function showQuiz(q, run, progressInfo){
+  return new Promise((resolve)=>{
+    if(run?.aborted) return resolve(null);
+
+    // 기존 퀴즈 진입 시 모드 해제
+    quizOverlay.classList.remove("oxMode");
+    quizOverlay.classList.remove("callMode");
+    if(quizHeadTitleEl) quizHeadTitleEl.textContent = "문제";
+    if(qVisualEl) qVisualEl.innerHTML = "";
+    oxClearHighlights();
+
+    // OX 나가기 버튼
+    if(oxExitBtn) oxExitBtn.onclick = null;
+
+    // OX 피드백
+    qChoicesEl.style.display = "";
+
+    const nextBtn = document.getElementById("quizNextBtn");
+    qFeedback.classList.remove("show");
+
+    setQuizProgress(progressInfo?.idx, progressInfo?.total);
+
+    qPromptEl.textContent = easyText(q.prompt || "문제");
+    qChoicesEl.innerHTML = "";
+
+    if(nextBtn){
+      nextBtn.classList.remove("on");
+      nextBtn.disabled = true;
+      nextBtn.onclick = null;
+    }
+
+    let pickedResult = null;
+    let selectedChoice = null;
+    let submitted = false;
+
+    const qNo = Number(progressInfo?.idx || 1);
+    const shuffledChoices = orderChoicesWithAlternatingCorrect((q.choices||[]), qNo);
+
+    if(nextBtn){
+      nextBtn.textContent = "다음";
+      nextBtn.disabled = true;
+      nextBtn.classList.remove("on");
+
+      nextBtn.onclick = ()=>{
+        if(run?.aborted) return resolve(null);
+        if(!selectedChoice) return;
+
+        if(!submitted){
+          const delta = Number(selectedChoice.score || 0);
+          const good = delta > 0;
+
+          fbTitle.textContent = good ? "좋아요 ✔" : "주의🚨";
+          const fbTextRaw = selectedChoice.feedback || (good
+            ? "사기(피싱)일 수 있는 신호를 잘 잡았어요. 다음으로 이어집니다."
+            : "이 선택은 위험할 수 있어요. ‘멈춤 → 공식 채널로 다시 확인(검증)’이 핵심입니다.");
+
+          const fbText = easyText(fbTextRaw);
+
+          const whyText = selectedChoice.why ? easyText(String(selectedChoice.why)) : "";
+          fbBody.innerHTML =
+            `${escapeHtml(fbText)}`
+            + (whyText.trim()
+                ? `<div class="why"><b>왜?</b><br>${escapeHtml(whyText)}</div>`
+                : ``);
+
+          qFeedback.classList.add("show");
+
+          pickedResult = { choice: selectedChoice, good, delta };
+          submitted = true;
+
+          qChoicesEl.querySelectorAll(".choice").forEach(b=> b.disabled = true);
+
+          nextBtn.disabled = false;
+          nextBtn.classList.add("on");
+          return;
+        }
+
+        quizOverlay.classList.remove("show");
+        resolve(pickedResult);
+      };
+    }
+
+    shuffledChoices.forEach((c, idx)=>{
+      const btn = document.createElement("button");
+      btn.className = "choice";
+      btn.textContent = easyText(c.text || ("선택 " + (idx+1)));
+
+      btn.onclick = ()=>{
+        if(run?.aborted) return resolve(null);
+        if(submitted) return;
+
+        selectedChoice = c;
+
+        qChoicesEl.querySelectorAll(".choice").forEach(b=> b.classList.remove("selected"));
+        btn.classList.add("selected");
+
+        if(nextBtn){
+          nextBtn.disabled = false;
+          nextBtn.classList.add("on");
+        }
+      };
+
+      qChoicesEl.appendChild(btn);
+    });
+
+    setQuizCollapsed(false);
+    quizOverlay.classList.add("show");
+  });
+}
+
+/*** 분석 ***/
+function applyVectorToTotals(vector){
+  DIMENSIONS.forEach(d=>{
+    const v = Number(vector?.[d.key] || 0);
+    if(!Number.isFinite(v) || v === 0) return;
+    state.analytics.totals[d.key].sum += v;
+    state.analytics.totals[d.key].max += Math.abs(v);
+  });
+}
+function calcScoresFromSession(expId){
+  const ses = [...state.analytics.sessions].reverse().find(s => s.expId === expId);
+  const picks = ses?.picks || [];
+
+  const totalQ = picks.length;
+  const correctQ = picks.filter(p => !!p.good).length;
+
+  const dims = {};
+  DIMENSIONS.forEach(d => {
+    let touched = 0;
+    let ok = 0;
+    for(const p of picks){
+      const v = Number(p.vector?.[d.key] || 0);
+      if(v !== 0){
+        touched++;
+        if(p.good) ok++;
+      }
+    }
+    dims[d.key] = touched ? Math.round((ok / touched) * 100) : null;
+  });
+
+  const overall = totalQ ? Math.round((correctQ / totalQ) * 100) : 0;
+
+  return { overall, dims, totalQ, correctQ };
+}
+
+function startSession(expId){
+  const exp = getSCENARIOS()[expId];
+  return { expId, title: exp?.title || expId, at: Date.now(), picks:[] };
+}
+
+/*** 대화 속도 ***/
+const MESSAGE_INTERVAL_MS = 5000;
+
+/*** 읽기 대기 ***/
+const MIN_READ_MS = 1600;
+const MAX_READ_MS = 3600;
+function calcReadDelay(text){
+  const len = String(text||"").length;
+  return Math.min(MAX_READ_MS, Math.max(MIN_READ_MS, 1100 + len*22));
+}
+
+/*** 대화 분기 반응 태그 ***/
+function normalizeAfterPayload(after){
+  if(!after) return [];
+  if(typeof after === "string") return [{ from:"other", text: after }];
+  if(Array.isArray(after)){
+    return after.map(x=>{
+      if(typeof x === "string") return { from:"other", text: x };
+      if(x && typeof x === "object") return { from:(x.from||"other"), text:(x.text||""), delayMs: x.delayMs };
+      return null;
+    }).filter(Boolean);
+  }
+  if(after && typeof after === "object" && (after.text || after.from)){
+    return [{ from:(after.from||"other"), text:(after.text||"") }];
+  }
+  return [];
+}
+function defaultOtherReaction(good, step){
+  const prompt = String(step?.prompt || "");
+  if(good){
+    if(/콜백|전화|확인/.test(prompt)) return "왜 굳이 전화해… 지금 시간이 없어. 여기서 그냥 처리하면 돼.";
+    if(/링크|클릭|URL/.test(prompt)) return "아니 링크만 눌러서 확인만 해주면 되는데… 잠깐이면 끝나.";
+    if(/인증|OTP|비밀번호|신분증/.test(prompt)) return "그럼 인증번호만 1번만 알려줘… 진짜 마지막이야.";
+    if(/송금|결제|돈/.test(prompt)) return "지금 안 하면 큰일 나. 빨리 처리해야 해.";
+    return "지금 급해서 그래… 그냥 지금 바로 해줘.";
+  }else{
+    if(/콜백|전화|확인/.test(prompt)) return "그래, 그러면 내가 지금 안내해줄게. 끊지 말고 그대로 따라와.";
+    if(/링크|클릭|URL/.test(prompt)) return "맞아. 링크 들어가서 확인 버튼만 누르면 돼.";
+    if(/인증|OTP|비밀번호|신분증/.test(prompt)) return "응. 문자로 오는 인증번호(OTP)만 보내줘. 그걸로 끝나.";
+    if(/송금|결제|돈/.test(prompt)) return "좋아. 지금 안내하는 계좌로 바로 보내줘. 늦으면 안 돼.";
+    return "오케이. 그럼 내가 말하는 순서대로만 하면 돼.";
+  }
+}
+
+/*** 체험 시작 ***/
+function beginExperienceByCase(caseId){
+  const c = getCASES().find(x=>x.id===caseId);
+  if(!c) return go("case_list",{},true);
+  const exp = getSCENARIOS()[c.experienceId];
+  if(!exp) return;
+
+  resetTotals();
+
+  if(exp.type==="messenger"){
+    state.pendingExp = { expId:c.experienceId, type:"messenger" };
+    loudNotify(state.run);
+    showBanner("알림", "메시지가 도착했습니다.", false);
+
+    clearStickyNotifyTimer();
+    stickyNotifyTimer = setTimeout(()=>{
+      loudNotify(state.run);
+      showBanner("알림", `아래 알림을 눌러 내용을 확인하세요.`, true);
+    }, 2000);
+
+    go("push_gate",{ expId:c.experienceId }, false);
+    return;
+  }
+
+  if(exp.type==="call"){
+    state.pendingExp = { expId:c.experienceId, type:"call" };
+    go("exp_call",{ expId:c.experienceId }, false);
+    return;
+  }
+}
+
+/* === O/X 체험 === */
+function startOxSession(){
+  if(state.run) state.run.abort();
+  const run = makeRun();
+  state.run = run;
+
+  state.ox.session = {
+    at: Date.now(),
+    results: [],
+    total: OX_QUESTIONS.length
+  };
+
+  try{
+    localStorage.setItem(LS_OX_LAST, JSON.stringify(state.ox.session));
+  }catch(e){}
+
+  oxNext(run);
+}
+
+async function oxNext(run){
+  if(run?.aborted) return;
+
+  const ses = state.ox.session;
+  if(!ses) return;
+
+  const idx = ses.results.length;
+  if(idx >= OX_QUESTIONS.length){
+    // 완료
+    try{ localStorage.setItem(LS_OX_LAST, JSON.stringify(ses)); }catch(e){}
+    go("ox_result", {}, false);
+    return;
+  }
+
+  const q = OX_QUESTIONS[idx];
+  const res = await showOXQuiz(q, run, { idx: idx+1, total: OX_QUESTIONS.length });
+  if(!res || run?.aborted) return;
+
+  ses.results.push(res);
+  try{ localStorage.setItem(LS_OX_LAST, JSON.stringify(ses)); }catch(e){}
+  oxNext(run);
+}
+
+/*** 렌더 라우터 ***/
+function render(){
+  const { name, params } = state.route;
+  if(name==="home") return renderHome();
+  if(name==="case_list") return renderCaseList();
+  if(name==="case_detail") return renderCaseDetail(params.caseId);
+  if(name==="push_gate") return renderPushGate(params.expId);
+  if(name==="exp_messenger") return renderMessengerExp(params.expId);
+  if(name==="exp_call") return renderCallExp(params.expId);
+  if(name==="report") return renderReport();
+  if(name==="result") return renderResult(params);
+
+  /* O/X 체험 라우트 */
+  if(name==="ox_intro") return renderOxIntro();
+  if(name==="ox_result") return renderOxResult();
+
+  return go("home",{},true);
+}
+
+/*** 홈 ***/
+let homeGuideTimer = null;
+
+function renderHome(){
+  if(homeGuideTimer){ clearInterval(homeGuideTimer); homeGuideTimer = null; }
+
+  const slidesRaw = (Array.isArray(HOME_GUIDE_SLIDES) && HOME_GUIDE_SLIDES.length > 0)
+  ? HOME_GUIDE_SLIDES
+  : [{ img:"", href:"" }];
+
+  const slides = slidesRaw.map(s=>{
+    const img = (s?.img && String(s.img).trim()) ? s.img : (s?.href || "");
+    return { img, href: s?.href || "" };
+  });
+
+  const heroBgVar = (HOME_HERO_BG_URL && String(HOME_HERO_BG_URL).trim())
+    ? `--home-hero-bg: url('${escapeHtml(HOME_HERO_BG_URL)}');`
+    : `--home-hero-bg: none;`;
+
+  main.innerHTML = `
+    <div class="card" style="padding:12px; position:relative; overflow:hidden;">
+      <div class="homeHeroText ${HOME_HERO_BG_URL && String(HOME_HERO_BG_URL).trim() ? "hasBg" : ""}"
+           style="${heroBgVar}">
+        <div style="font-weight:1000;letter-spacing:-.02em;font-size:calc(17px + var(--fontUp));">
+          피싱 범죄는 예방이 최선입니다.</div>
+
+        <div style="margin-top:8px;color:var(--muted);font-size:calc(15px + var(--fontUp));line-height:1.55;">
+          <div><b>나와 소중한 사람을 지키는 방법.</b></div>
+          <div style="margin-top:8px;">
+            지금 ‘대응절차’과 ‘안전지수’를 확인하세요.
+          </div>
+          <div style="margin-top:10px;"><b>한번의 체험이, 평생의 피해를 막습니다.</b></div>
+        </div>
+      </div>
+
+      <div class="cta" style="margin-top:14px;">
+        <button class="btn primary block" id="goExp">체험 시작</button>
+
+        <!-- 홈 화면에 O/X 문제풀기 버튼 -->
+        <button class="btn ox block" id="goOx">O / X 문제풀기</button>
+
+        <button class="btn ghost block" id="goShare">공유하기</button>
+      </div>
+    </div>
+
+    <div class="homeDashGrid" style="grid-template-columns: 1fr;">
+      <div class="card homeTile" id="homeSafetyCard">
+        <div class="homeTileHead" style="background: linear-gradient(180deg, rgba(252,246,228,1), rgba(252,246,228,1));">
+          <div class="ttl">나의 현재 안전지수</div>
+          <div class="homeBadge sky" id="homeSafetyBadge">체험 필요</div>
+        </div>
+
+        <div class="homeTileBody">
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:10px;">
+            <div class="homeBigScore" id="homeSafetyScore">—</div>
+            <div style="text-align:right;">
+              <div class="homeMiniMuted" id="homeSafetyLast">마지막 체험: —</div>
+            </div>
+          </div>
+
+          <div class="homeSegWrap" aria-label="안전지수 구간 그래프">
+            <div class="homeSegBar">
+              <div class="homeSeg" id="seg0"></div>
+              <div class="homeSeg" id="seg1"></div>
+              <div class="homeSeg" id="seg2"></div>
+              <div class="homeSeg" id="seg3"></div>
+            </div>
+            <div class="homeSegMarker" id="homeSegMarker" aria-hidden="true"></div>
+            <div class="homeSegLabels" aria-hidden="true">
+              <div><b>0~54(취약)</b></div><div><b>55~69(주의)</b></div><div><b>70~84(보통)</b></div><div><b>85~100(양호)</b></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px;padding:0;overflow:hidden;">
+      <div style="padding:16px 16px 0;">
+        <div style="font-weight:1000;letter-spacing:-.02em;font-size:calc(15px + var(--fontUp));">관련 안내</div>
+      </div>
+
+      <div class="slider" style="padding:0;overflow:hidden;">
+        <div class="slideTrack" id="homeGuideTrack">
+          ${slides.map((s,i)=>`
+            <div class="slide" data-idx="${i}">
+              <div class="guidePh" style="cursor:pointer;">
+                ${
+                  (s.img && String(s.img).trim())
+                    ? `<img alt="안내 이미지 ${i+1}" src="${escapeHtml(s.img)}" />`
+                    : `<div class="big">안내 이미지 ${i+1}</div><div class="small">HOME_GUIDE_SLIDES[${i}]에 이미지 URL 또는 href 입력</div>`
+                }
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+      <div class="dots" id="homeGuideDots" style="padding-bottom:12px;"></div>
+    </div>
+  `;
+
+  document.getElementById("goExp").onclick = ()=> go("case_list",{},true);
+
+  // O/X 체험 시작 버튼
+  document.getElementById("goOx").onclick = ()=> go("ox_intro", {}, false);
+
+  document.getElementById("goShare").onclick = ()=> shareApp("나와 소중한 사람을 지키는 연습, 지금 피싱 범죄 '대응절차'와 나의 '안전지수'를 체험해봐요!");
+
+  (function initHomeSafety(){
+    let lastScore = null;
+    let lastAt = null;
+
+    /* 아무것도 안한 상태 0점과 체험 필요:
+       - LS_LAST_EXP + LS_LAST_SESSION(정상 세션)이 없으면 점수 표시하지 않음(=0점 처리) */
+    let hasRealSession = false;
+    try{
+      const expId = localStorage.getItem(LS_LAST_EXP);
+      const sesJson = localStorage.getItem(LS_LAST_SESSION);
+      if(expId && sesJson){
+        const ses = JSON.parse(sesJson);
+        if(ses && ses.expId === expId && Array.isArray(ses.picks) && ses.picks.length > 0){
+          hasRealSession = true;
+        }
+      }
+    }catch(e){ hasRealSession = false; }
+
+    // 공유로 들어온 기기면 홈 점수는 무조건 0점
+    try{
+      if(localStorage.getItem(LS_SHARED_VIEW) === "1"){
+        hasRealSession = false;
+      }
+    }catch(e){}
+
+    try{
+      if(hasRealSession){
+        const s = localStorage.getItem(LS_LAST_SCORE);
+        const t = localStorage.getItem(LS_LAST_AT);
+        if(s != null) lastScore = Number(s);
+        if(t != null) lastAt = Number(t);
+      }
+    }catch(e){}
+
+    const scoreEl = document.getElementById("homeSafetyScore");
+    const badgeEl = document.getElementById("homeSafetyBadge");
+    const lastEl  = document.getElementById("homeSafetyLast");
+
+    const segEls = [
+      document.getElementById("seg0"),
+      document.getElementById("seg1"),
+      document.getElementById("seg2"),
+      document.getElementById("seg3"),
+    ];
+    const marker = document.getElementById("homeSegMarker");
+
+    function setBadge(label){
+      badgeEl.textContent = label;
+      badgeEl.className = "homeBadge sky";
+      if(label === "양호") badgeEl.className = "homeBadge green";
+      else if(label === "보통") badgeEl.className = "homeBadge sky";
+      else if(label === "주의") badgeEl.className = "homeBadge orange";
+      else if(label === "취약") badgeEl.className = "homeBadge red";
+      else if(label === "체험 필요") badgeEl.className = "homeBadge sky";
+    }
+
+    if(Number.isFinite(lastScore)){
+      scoreEl.textContent = `${lastScore}점`;
+      const r = scoreRangeLabel(lastScore);
+      setBadge(r.label);
+      if(Number.isFinite(lastAt)) lastEl.textContent = "마지막 체험: " + fmtKoreanDateTime(lastAt);
+      else lastEl.textContent = "마지막 체험: —";
+
+      segEls.forEach(el=> el && el.classList.remove("on"));
+      if(r.idx >= 0 && segEls[r.idx]) segEls[r.idx].classList.add("on");
+
+      const pct = Math.max(0, Math.min(100, lastScore));
+      marker.style.left = pct + "%";
+      marker.classList.add("on");
+    }else{
+      scoreEl.textContent = "0점";
+      setBadge("체험 필요");
+      lastEl.textContent = "마지막 체험: —";
+      segEls.forEach(el=> el && el.classList.remove("on"));
+      marker.classList.remove("on");
+    }
+
+    /* 홈 안전지수 카드 클릭하면 마지막 화면 복원 */
+    const safetyCard = document.getElementById("homeSafetyCard");
+    if(safetyCard){
+      safetyCard.style.cursor = "pointer";
+      safetyCard.onclick = ()=>{
+        const expId = restoreLastResultToState();
+        if(!expId){
+          showBanner("안내", "아직 체험한 이력이 없어요.", false);
+          return;
+        }
+        go("result", { expId }, false);
+      };
+    }
+
+  })();
+
+  const track = document.getElementById("homeGuideTrack");
+  const dots = document.getElementById("homeGuideDots");
+  let idx = 0;
+
+  function getSlideW(){
+    const rect = track.parentElement.getBoundingClientRect();
+    return Math.min(rect.width, 560);
+  }
+  function syncSlideWidth(w){
+    track.querySelectorAll(".slide").forEach(sl => { sl.style.width = w + "px"; });
+  }
+
+  function renderDots(){
+    dots.innerHTML = slides.map((_,i)=>`<span class="dot ${i===idx?'on':''}"></span>`).join("");
+  }
+  function setIdx(i){
+    idx = Math.max(0, Math.min(slides.length-1, i));
+    const w = getSlideW();
+    syncSlideWidth(w);
+    track.style.transform = `translateX(${-idx * w}px)`;
+    renderDots();
+  }
+
+  homeGuideTimer = setInterval(()=> setIdx((idx+1) % slides.length), 5000);
+
+  let startX = null;
+  track.parentElement.addEventListener("touchstart",(e)=>{ startX = e.touches[0].clientX; },{passive:true});
+  track.parentElement.addEventListener("touchend",(e)=>{
+    if(startX==null) return;
+    const endX = e.changedTouches[0].clientX;
+    const dx = endX - startX;
+    if(dx < -40) setIdx(idx+1);
+    if(dx > 40) setIdx(idx-1);
+    startX = null;
+  },{passive:true});
+
+  track.addEventListener("click",(e)=>{
+    const slideEl = e.target.closest(".slide");
+    if(!slideEl) return;
+    const i = Number(slideEl.dataset.idx || 0);
+    const href = slides?.[i]?.href || "";
+    if(href && String(href).trim()){
+      window.open(href, "_blank", "noopener,noreferrer");
+    }else{
+      showBanner("안내", "이 이미지의 새창 링크(href)가 비어있어요. HOME_GUIDE_SLIDES에 입력해 주세요.", false);
+    }
+  });
+
+  window.addEventListener("resize", ()=> setIdx(idx));
+  renderDots();
+  syncSlideWidth(getSlideW());
+  setIdx(0);
+}
+
+/* === O/X 체험 소개 화면 === */
+function renderOxIntro(){
+  main.innerHTML = `
+    <div class="oxIntroStage">
+      <div class="oxIntroCard">
+        <div class="oxIntroTop">
+          <div class="oxIntroSub">문자메시지를 이용한 휴대폰 해킹(스미싱)<br>수법을 알아보세요</div>
+
+          <div class="oxIntroHint">
+            ‘네/아니요’로 풀어보고,<br>
+            <b>어디가 의심 포인트인지</b> 화면에서 바로 확인해보세요
+          </div>
+        </div>
+
+        <div class="oxIntroPreview">
+          <div class="oxMsgCard">
+            <div class="oxMsgTop"><span class="oxMark">예시 화면</span></div>
+            <div class="oxMsgBody">
+              <div class="oxMsgBubble">
+                <div class="oxWeb">[Web발신]</div>
+                <div class="oxText">
+                  택배 반송 안내<br>
+                  <span class="oxMark oxUrgency">오늘 18시까지</span> 주소 확인 필요<br>
+                  <span class="oxLink">https://reurl.kr/xxxx</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:10px;color:rgba(31,36,48,.74);font-size:calc(13px + var(--fontUp));line-height:1.55;text-align:left;">
+            <b>팁</b> · 링크(주소) 클릭 유도 + ‘오늘/즉시’ 재촉 + 인증/개인정보/금전 언급이 나오면, 한 번 더 의심하세요.
+          </div>
+        </div>
+
+        <div class="oxIntroBottom">
+          <button class="oxIntroBtn start" id="oxIntroStart">시작하기</button>
+          <button class="oxIntroBtn back" id="oxIntroBack">뒤로가기</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById("oxIntroBack").onclick = ()=> go("home", {}, true);
+  document.getElementById("oxIntroStart").onclick = ()=> startOxSession();
+}
+
+/* === O/X 결과 화면 === */
+function renderOxResult(){
+  const ses = state.ox.session || (()=>{
+    try{
+      const j = localStorage.getItem(LS_OX_LAST);
+      return j ? JSON.parse(j) : null;
+    }catch(e){ return null; }
+  })();
+
+  const results = Array.isArray(ses?.results) ? ses.results : [];
+  const total = OX_QUESTIONS.length;
+
+  // 맞히고 틀린 유형
+  const correctFirst = results.filter(r=>r.firstTryCorrect);
+  const wrongFirst = results.filter(r=>!r.firstTryCorrect);
+
+  main.innerHTML = `
+    <div class="resultWrap oxResultWrap">
+      <div class="card" style="padding:16px;">
+        <div style="font-weight:1000;letter-spacing:-.02em;font-size:calc(16px + var(--fontUp));">O / X 체험 결과</div>
+        <div style="margin-top:8px;color:rgba(31,36,48,.72);font-size:calc(13px + var(--fontUp));line-height:1.55;">
+          총 ${total}유형 중 <b>${correctFirst.length}</b>유형을 첫 시도에 맞혔어요.
+        </div>
+
+        <div class="boxedSection" style="margin-top:12px;">
+          <div style="font-weight:1000;color:rgba(31,36,48,.92);">맞힌 유형(첫 시도 정답)</div>
+          ${
+            correctFirst.length
+              ? correctFirst.map(r=>`
+                <div style="margin-top:10px;">
+                  • <b>${escapeHtml(r.typeLabel)}</b><br>
+                  <span style="color:#1D9A6C;font-weight:900;">왜 맞았을까?</span>
+                  ${escapeHtml(easyText(r.explainRight || "—"))}
+                </div>
+              `).join("")
+              : `<div style="margin-top:10px;">• 첫 시도에 맞힌 유형이 없습니다.</div>`
+          }
+        </div>
+
+        <div class="boxedSection" style="margin-top:12px;">
+          <div style="font-weight:1000;color:rgba(31,36,48,.92);">틀린 유형(첫 시도 오답)</div>
+          ${
+            wrongFirst.length
+              ? wrongFirst.map(r=>`
+                <div style="margin-top:10px;">
+                  • <b>${escapeHtml(r.typeLabel)}</b> <span style="color:rgba(31,36,48,.60);">(시도 ${escapeHtml(String(r.attempts||1))}회)</span><br>
+                  <span style="color:#D45050;font-weight:900;">왜 틀렸을까?</span>
+                  ${escapeHtml(easyText(r.explainWrong || "—"))}<br>
+                  <span style="color:#2D70C9;font-weight:900;">정답 포인트</span>
+                  ${escapeHtml(easyText(r.explainRight || "—"))}
+                </div>
+              `).join("")
+              : `<div style="margin-top:10px;">• 첫 시도에 틀린 유형이 없습니다 👍</div>`
+          }
+        </div>
+
+        <div class="cta" style="margin-top:14px;">
+          <button class="btn primary block" id="oxRetryAll">다시하기</button>
+          <button class="btn ghost block" id="oxGoHome">첫 화면</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById("oxRetryAll").onclick = ()=>{
+    go("ox_intro", {}, true);
+  };
+  document.getElementById("oxGoHome").onclick = ()=> go("home", {}, true);
+}
+
+
+/*** 유형 리스트 ***/
+function renderCaseList(){
+  const items = getCASES();
+  main.innerHTML = `
+    <div class="caseList">
+      ${items.map(c=>`
+        <div class="card caseItem" data-case="${escapeHtml(c.id)}">
+          <div class="caseBody">
+            <div class="caseTop">
+              <div style="min-width:0;flex:1">
+                <p class="caseTitle">${escapeHtml(c.title)}</p>
+                <p class="caseSub">${escapeHtml(c.subtitle)}</p>
+              </div>
+              ${catChip(c.category)}
+            </div>
+          </div>
+        </div>
+      `).join("")}
+    </div>
+
+    <div class="cta" style="margin-top:16px;">
+      <button class="btn ghost block" id="caseListBack">뒤로가기</button>
+    </div>
+  `;
+
+  main.querySelectorAll("[data-case]").forEach(el=>{
+    el.onclick = ()=> go("case_detail",{ caseId: el.dataset.case });
+  });
+
+  const backBtn = document.getElementById("caseListBack");
+  if(backBtn){
+    backBtn.onclick = ()=> go("home", {}, true);
+  }
+}
+
+/*** 상세 ***/
+function buildEasyExplainForCase(c){
+  const exp = getSCENARIOS()?.[c?.experienceId];
+  const isCall = exp?.type === "call";
+  const ui = exp?.ui || "";
+  const kind = isCall ? "전화" : (ui==="kakao" ? "카톡" : (ui==="sms" ? "문자" : "메시지"));
+
+  const t = `${c?.title||""} ${c?.subtitle||""} ${(c?.info?.keywords||[]).join(" ")}`.trim();
+  const has = (re)=> re.test(t);
+
+  const headLine = isCall
+    ? "이 수법은"
+    : "이 수법은";
+
+  const baseNoticeTitle = `준비됐나요? 이제 ‘가짜 ${kind}’ 상황이 시작돼요`;
+  const baseNoticeBody  = "모든 화면은 학습용으로, 실제로 돈이 빠져나가거나 프로그램이 설치가 되지 않아요. 천천히 읽고 체험해보세요!";
+
+  /* ✅ 시나리오 기반 설명(사용자가 시나리오 내용을 바꿔도 자동 반영) */
+  try{
+    if(exp){
+      const customLines = Array.isArray(exp.introLines) ? exp.introLines.filter(x=>String(x||"").trim()) : [];
+      const introText = String(exp.introText || exp.intro || exp.oneLiner || "").trim();
+
+      if(customLines.length){
+        return { lines: customLines.map(s=>String(s)), noticeTitle: baseNoticeTitle, noticeBody: baseNoticeBody };
+      }
+
+      // introText/oneLiner/핵심포인트를 조합해 설명 생성
+      const lines = [];
+      if(introText) lines.push(`${headLine} ${introText}`);
+
+      // 최소 1줄은 보장
+      if(lines.length){
+        return { lines, noticeTitle: baseNoticeTitle, noticeBody: baseNoticeBody };
+      }
+    }
+  }catch(e){}
+
+
+  const mk = (situation, top3, action)=>({
+    lines: [
+      `${headLine} ${situation}`,
+    ],
+    noticeTitle: baseNoticeTitle,
+    noticeBody: baseNoticeBody
+  });
+
+  if(has(/가족|자녀|아들|딸|엄마|아빠|부모|가족사칭/)){
+    return mk(
+      "마치 실제 자녀(아들 또는 딸)인 척 하면서 ‘새 번호’로 연락이 와요. 그리고 갑자기 ‘급한 일’이 생겼다고 도와달라고 해요.",
+      [
+        "엄마(아빠) 나 폰 고장나서 번호 바뀌었어",
+        "지금 통화/영상통화는 안 돼… 카톡으로만 가능해",
+        "급해서 그런데 링크 눌러서 확인(인증)만 해줘 / 인증번호(OTP)만 알려줘"
+      ],
+      "일단 멈추고, **내가 원래 저장해둔 번호로 직접 전화(콜백)** 해서 진짜 가족인지 확인하세요. 링크(주소 URL)·인증번호(OTP)·송금 요구는 **무조건 거절**이 안전해요."
+    );
+  }
+
+  if(has(/청첩장|모바일\s*청첩장|초대장|모바일\s*초대장/)){
+    return mk(
+      "지인인 척 ‘모바일 청첩장/초대장’ 링크(주소 URL)가 와요. 눌러보게 만든 뒤 설치/권한/인증으로 넘어가게 해요.",
+      [
+        "모바일청첩장 왔어~ 링크로 봐줘!",
+        "모바일 전용이라 ‘뷰어/미리보기’ 설치해야 열려",
+        "오늘 안 보면 만료돼/확인 안 하면 안 열려"
+      ],
+      "링크(주소 URL)는 누르지 말고, **지인에게 기존 대화방/전화로 직접 확인(검증)** 하세요. ‘뷰어 설치’, ‘권한 허용’, ‘인증번호(OTP)’가 나오면 **즉시 중단**이 정답이에요."
+    );
+  }
+
+  if(has(/부고장|부고|장례식장|조문|부고\s*안내/)){
+    return mk(
+      "마음이 급해지는 ‘부고 소식’으로 클릭을 유도해요. 확인하려는 심리를 이용해서 링크(주소 URL) → 설치/권한으로 이어지게 만들 수 있어요.",
+      [
+        "삼가 알려드립니다. 부고장 확인 부탁드립니다",
+        "장례식장 위치/조문 안내가 링크에 있어요",
+        "모바일 전용이라 ‘안내장/뷰어’ 설치가 필요합니다"
+      ],
+      "감정이 급할수록 잠깐 멈추고, **가족/지인에게 전화로 사실 확인**부터 하세요. 링크(주소 URL) 클릭·앱 설치·권한 요청이 나오면 **바로 중단/차단**하세요."
+    );
+  }
+
+  if(has(/택배|배송|부재중|관세|통관|주소\s*확인|우체국|집배원|카드\s*배송/)){
+    return mk(
+      "택배/카드 배송을 미끼로 ‘부재중/주소 확인/본인확인’을 하게 만들어요. 급하게 클릭하게 한 뒤 가짜 화면이나 설치로 유도할 수 있어요.",
+      [
+        "부재중입니다. 주소 확인이 필요합니다",
+        "오늘 18시까지 미확인 시 반송 처리됩니다",
+        "본인확인/수령장소 확인: (짧은 링크/단축 URL)"
+      ],
+      "문자 속 링크(주소 URL)는 누르지 말고, **택배사/우체국/카드사 공식 앱·홈페이지에서 직접 조회**하세요. ‘앱 설치/권한(문자·알림·접근성)’이 나오면 **즉시 중단**이 안전해요."
+    );
+  }
+
+  if(has(/기관|금감원|국세청|법원|등기|관세청|과태료|미납|고지서|압류|가산금/)){
+    return mk(
+      "‘미납/과태료’ 같은 말로 겁을 주고, 고지서 확인 링크(주소 URL)를 누르게 만들어요. 이후 개인정보/인증/설치로 이어질 수 있어요.",
+      [
+        "미납입니다. 오늘까지 미조치 시 불이익/가산금 발생",
+        "고지서 확인: (단축링크)",
+        "납부 오류 시 상담원이 원격으로 도와드립니다"
+      ],
+      "겁주는 문구가 나와도 **일단 멈추고**, 링크 대신 **공식 홈페이지/앱에 내가 직접 접속**해서 조회하세요. ‘원격/앱 설치/인증번호(OTP)’ 요구가 나오면 **즉시 거절**하세요."
+    );
+  }
+
+  if(has(/대출|저금리|한도|신용|금리|수수료|환급|과납|갈아타기/)){
+    return mk(
+      "‘환급/저금리/대출 한도’ 같은 달콤한 말로 링크(주소 URL)를 누르게 하거나, 개인정보/인증을 입력하게 만들 수 있어요.",
+      [
+        "환급 대상입니다. 링크로 서류 확인하세요",
+        "저금리 전환 가능합니다. 오늘 마감입니다",
+        "본인확인을 위해 인증번호(OTP) 입력이 필요합니다"
+      ],
+      "링크(주소 URL)는 누르지 말고, **금융사 공식 앱/홈페이지에서 직접 확인**하세요. 개인정보·계좌·인증번호(OTP) 요구는 **바로 중단**이 정답이에요."
+    );
+  }
+
+  return mk(
+    "처음엔 그럴듯해 보여도, 사기(피싱)는 보통 ‘급하게 만들기’부터 시작해요.",
+    [
+      "지금 당장 해야 합니다(마감/제한/반송)",
+      "링크 눌러서 확인해 주세요(주소 URL)",
+      "인증번호(OTP)/개인정보/송금이 필요해요"
+    ],
+    "재촉 + 링크(주소 URL) + 인증번호(OTP) + 돈 이야기가 나오면 **일단 멈추고**, **공식 채널로 내가 직접 확인(검증)** 하세요."
+  );
+}
+
+function renderCaseDetail(caseId){
+  const c = getCASES().find(x=>x.id===caseId);
+  if(!c) return go("case_list",{},true);
+
+  const intro = buildEasyExplainForCase(c);
+
+  const introSummaryLineRaw = (intro?.lines||[]).find(l => /요약\s*:/i.test(String(l||""))) || "";
+  const introSummaryBodyRaw = String(introSummaryLineRaw).replace(/^.*?요약\s*:\s*/i, "").trim();
+  const autoSummaryText = introSummaryBodyRaw ? easyText(introSummaryBodyRaw) : easyText(c.info?.summary||"");
+
+  function allowBr(escaped){
+  return String(escaped||"")
+    .replaceAll("&lt;br&gt;", "<br>")
+    .replaceAll("&lt;br/&gt;", "<br>")
+    .replaceAll("&lt;br /&gt;", "<br>");
+}
+
+function formatIntroLineHtml(t){
+  const s = String(t||"");
+  const m1 = s.match(/^(👀\s*요약:)\s*(.*)$/);
+  if(m1) return `${escapeHtml(m1[1])}<br>${allowBr(escapeHtml(m1[2]))}`;
+  const m2 = s.match(/^(🗣️\s*수법[^:]*:)\s*(.*)$/);
+  if(m2) return `${escapeHtml(m2[1])}<br>${allowBr(escapeHtml(m2[2]))}`;
+  const m3 = s.match(/^(✔\s*올바른 행동:)\s*(.*)$/);
+  if(m3) return `${escapeHtml(m3[1])}<br>${allowBr(escapeHtml(m3[2]))}`;
+  const idx = s.indexOf(":");
+  if(idx > 0) return `${escapeHtml(s.slice(0, idx+1))}<br>${allowBr(escapeHtml(s.slice(idx+1).trim()))}`;
+  return allowBr(escapeHtml(s));
+}
+
+  main.innerHTML = `
+    <div class="card detailHead">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
+        <div style="min-width:0;">
+          <h2>${escapeHtml(c.title)}</h2>
+        </div>
+        <div>${catChip(c.category)}</div>
+      </div>
+
+    <div class="card infoBlock" style="margin-top:12px;">
+      <div class="row">
+        <div class="k">피해 대상</div>
+        <div class="v">
+          <ul class="listDots">
+            ${(c.info?.victims||[]).map(v=>`<li>${escapeHtml(v)}</li>`).join("")}
+          </ul>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="k">핵심 단어</div>
+        <div class="v">
+          ${(c.info?.keywords||[]).map(k=>`<span class="kwWord">${escapeHtml(k)}</span>`).join("")}
+        </div>
+      </div>
+
+      <div class="row" style="display:none;">
+        <div class="k">요약</div>
+        <div class="v">${escapeHtml(autoSummaryText)}</div>
+      </div>
+    </div>
+
+<div class="boxedSection introBox" style="margin-top:12px;">
+  <div style="font-weight:1000;letter-spacing:-.02em;">놀라지 마세요</div>
+  <div style="margin-top:8px;line-height:1.65;color:rgba(31,36,48,.80);">
+    ${intro.lines.map(t=>`<div>${formatIntroLineHtml(t)}</div>`).join("")}
+  </div>
+</div>
+
+      <div class="boxedSection compact introBox" style="margin-top:10px;">
+        <div style="font-weight:1000;">${escapeHtml(intro.noticeTitle)}</div>
+        <div style="margin-top:6px;color:rgba(31,36,48,.72);line-height:1.55;">
+          ${escapeHtml(intro.noticeBody)}
+        </div>
+      </div>
+
+      <div class="cta">
+        <button class="btn primary block" id="startExp">체험 하러 가기</button>
+        <button class="btn ghost block" id="goBack">뒤로</button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById("goBack").onclick = ()=> back();
+  document.getElementById("startExp").onclick = ()=> beginExperienceByCase(caseId);
+}
+
+/*** 푸시 ***/
+function renderPushGate(expId){
+  const exp = getSCENARIOS()[expId];
+  if(!exp || exp.type!=="messenger") return go("case_list",{},true);
+
+  const kind = exp.ui === "kakao" ? "카톡" : (exp.ui==="sms" ? "문자메시지" : "메시지");
+  const body = (exp.notify && Object.prototype.hasOwnProperty.call(exp.notify, "body")) ? (exp.notify.body ?? "") : `${kind} 알림이 도착했어요.`;
+
+  main.innerHTML = `
+    <div class="pushGate">
+      <div class="pushTop">
+        <div class="pushClock">${escapeHtml(nowClock())}</div>
+        <div class="pushDate">${escapeHtml(nowDateLabel())}</div>
+
+        <div class="pushCards">
+          <div class="pushCard" id="pushCard">
+            <div class="pushBodyOnly">${escapeHtml(body)}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById("pushCard").onclick = ()=>{
+    clearStickyNotifyTimer();
+    hideBanner();
+    state.pendingExp = null;
+    go("exp_messenger",{ expId }, false);
+  };
+}
+
+/*** 메신저와 카톡 체험 ***/
+function renderMessengerExp(expId){
+  const exp = getSCENARIOS()[expId];
+  if(!exp || exp.type!=="messenger") return go("case_list",{},true);
+
+  clearStickyNotifyTimer();
+  hideBanner();
+
+  if(state.run) state.run.abort();
+  const run = makeRun();
+  state.run = run;
+
+  const session = startSession(expId);
+  let stepIndex = 0;
+
+  const qTotal = (exp.steps||[]).filter(s=>s.type==="q").length;
+  let qIdx = 0;
+
+  const isKakao = exp.ui === "kakao";
+  const wrapperClass = isKakao ? "kakao" : "sms";
+
+  const headerTitle = exp.header?.title || "대화";
+  const headerSub = exp.header?.sub || "";
+  const initial = (headerTitle || "?").slice(0,1);
+
+  main.innerHTML = `
+    <div class="expWrap ${wrapperClass}">
+      <div class="chatHeader">
+        <div class="backBtn" id="simBack" title="뒤로" aria-label="뒤로">←</div>
+
+        <div class="profile">
+          <div class="avatar">
+            ${escapeHtml(initial)}
+            <div class="statusDot"></div>
+          </div>
+          <div class="pbox">
+            <p class="pname">${escapeHtml(headerTitle)}</p>
+            <p class="psub">${escapeHtml(headerSub)}</p>
+          </div>
+        </div>
+
+        <div class="hdrIcons">
+          <div class="hico" id="icoSearch" title="검색">⌕</div>
+          <div class="hico" id="icoHint" title="힌트">i</div>
+        </div>
+      </div>
+
+      <div class="chatArea ${isKakao?'kakaoBg':''}" id="chatArea"></div>
+
+      <div class="chatFooter ${isKakao?'kakaoFooter':'smsFooter'}">
+        <div class="chatInputRow">
+          <div class="chatIcon">＋</div>
+          <input class="chatField" placeholder="" disabled />
+          <div class="chatIcon">☺</div>
+          <button class="sendBtn" type="button" disabled>전송</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const chatArea = document.getElementById("chatArea");
+  document.getElementById("simBack").onclick = ()=> backToCaseList();
+  document.getElementById("icoSearch").onclick = ()=> showBanner("안내", "검색버튼은 학습용입니다.", false);
+  document.getElementById("icoHint").onclick = ()=> showBanner("힌트", easyText("급함/링크/인증/송금 요구는 ‘멈춤’ 신호예요."), false);
+
+  chatArea.addEventListener("click",(e)=>{
+    const btn = e.target.closest(".linkBtn");
+    if(!btn) return;
+    showBanner("학습 안내", easyText("외부 링크는 열지 말고, 공식 앱/홈페이지에서 확인하세요."), false);
+    e.preventDefault(); e.stopPropagation();
+  });
+
+  function appendMsg(from, text, opts={}){
+    if(run.aborted) return;
+
+    const row = document.createElement("div");
+    row.className = "rowMsg " + (from==="me" ? "me" : "other");
+
+    const stack = document.createElement("div");
+    stack.className = "stack " + (from==="me" ? "me" : "other");
+
+    const bubble = document.createElement("div");
+    bubble.className = "bubble " + (from==="me" ? "me" : "other") + (opts.pop ? " pop" : "");
+    bubble.innerHTML = makeClickableText(text);
+
+    const metaRow = document.createElement("div");
+    metaRow.className = "metaRow " + (from==="me" ? "me" : "other");
+
+    if(from==="me" && isKakao){
+      const read = document.createElement("span");
+      read.className = "readCount";
+      read.textContent = "1";
+      metaRow.appendChild(read);
+      run.setTimeout(()=> read.classList.add("vanish"), 1100);
+      run.setTimeout(()=> { if(read.parentNode) read.parentNode.removeChild(read); }, 1450);
+    }
+
+    const tm = document.createElement("span");
+    tm.textContent = nowTime();
+    metaRow.appendChild(tm);
+
+    stack.appendChild(bubble);
+    stack.appendChild(metaRow);
+
+    row.appendChild(stack);
+    chatArea.appendChild(row);
+    chatArea.scrollTop = chatArea.scrollHeight;
+  }
+
+  async function playAfterMessages(afterPayload){
+    const arr = normalizeAfterPayload(afterPayload);
+    for(const m of arr){
+      const delay = Number.isFinite(Number(m.delayMs)) ? Number(m.delayMs) : calcReadDelay(m.text);
+      await new Promise((r)=> run.setTimeout(r, delay));
+      appendMsg(m.from==="me" ? "me" : "other", m.text, { pop:true });
+    }
+  }
+
+  function endExp(){
+    if(run.aborted) return;
+    state.analytics.sessions.push(session);
+    go("result",{ expId }, true);
+  }
+
+  async function runNext(){
+    if(run.aborted) return;
+
+    const steps = (exp.steps||[]);
+    if(stepIndex >= steps.length) return endExp();
+
+    const step = steps[stepIndex];
+
+    if(step.type==="msg"){
+      const delay = (stepIndex === 0) ? 0 : MESSAGE_INTERVAL_MS;
+      run.setTimeout(()=>{
+        appendMsg(step.from==="me" ? "me" : "other", step.text, { pop:true });
+        stepIndex++;
+        runNext();
+      }, delay);
+      return;
+    }
+
+    if(step.type==="q"){
+      const lastText = (steps?.[stepIndex-1]?.text) || "";
+      const grace = calcReadDelay(lastText);
+
+      run.setTimeout(async ()=>{
+        const res = await showQuiz(step, run, { idx: qIdx + 1, total: qTotal });
+        if(!res || run.aborted) return;
+
+        qIdx++;
+
+        const vector = res.choice?.vector || {};
+        session.picks.push({
+          q: step.prompt || "",
+          choiceText: res.choice?.text || "",
+          good: res.good,
+          vector,
+          delta: Number(res.choice?.score||0),
+          explain: res.choice?.why || res.choice?.feedback || ""
+        });
+        applyVectorToTotals(vector);
+
+        const reply = res.choice?.reply || res.choice?.chat || toNaturalReply(res.choice?.text);
+        appendMsg("me", reply, { pop:true });
+
+        const branch =
+          res.choice?.after ||
+          (res.good ? step.afterGood : step.afterBad) ||
+          (step.after && (res.good ? step.after.good : step.after.bad)) ||
+          defaultOtherReaction(res.good, step);
+
+        await playAfterMessages(branch);
+
+        stepIndex++;
+        runNext();
+      }, grace);
+
+      return;
+    }
+
+    stepIndex++;
+    runNext();
+  }
+
+  runNext();
+}
+
+/*** 전화 벨소리 및 수신중 음성 ***/
+let ringTimer = null;
+let ringCtx = null;
+let ringAudio = null;
+let callVoiceAudio = null;
+
+function startGalaxyLikeRingtone(run){
+  if(SOUND_RINGTONE_URL && String(SOUND_RINGTONE_URL).trim()){
+    ringAudio = playUrlAudio(SOUND_RINGTONE_URL, {loop:true, volume:1}, run);
+    return;
+  }
+  try{
+    ringCtx = new (window.AudioContext || window.webkitAudioContext)();
+    run?.audioCtxs?.add(ringCtx);
+    const ctx = ringCtx;
+
+    const burst = ()=>{
+      const now = ctx.currentTime;
+      const o1 = ctx.createOscillator();
+      const o2 = ctx.createOscillator();
+      const lfo = ctx.createOscillator();
+      const lfoGain = ctx.createGain();
+      const g = ctx.createGain();
+
+      o1.type="sine"; o2.type="sine";
+      o1.frequency.setValueAtTime(659.25, now);
+      o2.frequency.setValueAtTime(880.00, now);
+
+      lfo.type="sine";
+      lfo.frequency.setValueAtTime(6.0, now);
+      lfoGain.gain.setValueAtTime(7.0, now);
+      lfo.connect(lfoGain);
+      lfoGain.connect(o1.frequency);
+
+      g.gain.setValueAtTime(0.0001, now);
+      g.gain.exponentialRampToValueAtTime(0.14, now + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + 0.55);
+
+      o1.connect(g); o2.connect(g); g.connect(ctx.destination);
+
+      o1.start(now); o2.start(now + 0.03); lfo.start(now);
+      o1.stop(now + 0.60); o2.stop(now + 0.60); lfo.stop(now + 0.60);
+    };
+
+    burst();
+    clearInterval(ringTimer);
+    ringTimer = setInterval(()=>{ if(run?.aborted) return; burst(); }, 1200);
+  }catch(e){}
+}
+function stopRingtone(){
+  clearInterval(ringTimer);
+  ringTimer = null;
+  try{ if(ringAudio){ ringAudio.pause(); ringAudio.currentTime=0; ringAudio=null; } }catch(e){}
+  try{ if(ringCtx){ ringCtx.close(); ringCtx=null; } }catch(e){}
+}
+
+function renderCallExp(expId){
+  const exp = getSCENARIOS()[expId];
+  if(!exp || exp.type!=="call") return go("case_list",{},true);
+
+  if(state.run) state.run.abort();
+  const run = makeRun();
+  state.run = run;
+
+  const session = startSession(expId);
+
+  const callerName =
+    (CALLER_NAME_OVERRIDE && CALLER_NAME_OVERRIDE.trim())
+      ? CALLER_NAME_OVERRIDE.trim()
+      : (exp.incoming?.name || "발신자");
+
+  const callerNumber =
+    (CALLER_NUMBER_OVERRIDE && CALLER_NUMBER_OVERRIDE.trim())
+      ? CALLER_NUMBER_OVERRIDE.trim()
+      : (exp.incoming?.number || "010-0000-0000");
+
+  main.innerHTML = `
+    <div class="callIncoming">
+      <div class="callTopInfo">
+        <p class="name">${escapeHtml(callerName)}</p>
+        <p class="num">${escapeHtml(callerNumber)}</p>
+        <div class="callHint"></div>
+      </div>
+
+      <div class="callActions">
+        <button class="callBtn callReject" id="rejectCall">거절</button>
+        <button class="callBtn callAccept" id="acceptCall">받기</button>
+      </div>
+    </div>
+  `;
+
+  startGalaxyLikeRingtone(run);
+
+  document.getElementById("rejectCall").onclick = ()=>{
+    stopRingtone();
+    backToCaseList();
+  };
+
+  document.getElementById("acceptCall").onclick = ()=>{
+    stopRingtone();
+
+    main.innerHTML = `
+      <div class="callInPre">
+        <div class="who">실제 보이스피싱범 목소리 수신중...</div>
+        <div class="timer" id="callTimer">00:01</div>
+        <div class="wave" aria-hidden="true">
+          <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        </div>
+      </div>
+    `;
+
+    const voiceUrl = (exp && exp.voiceUrl && String(exp.voiceUrl).trim())
+      ? exp.voiceUrl
+      : SOUND_CALL_VOICE_URL;
+
+    if (voiceUrl && String(voiceUrl).trim()) {
+      callVoiceAudio = playUrlAudio(voiceUrl, { loop: false, volume: 1 }, run);
+    }
+
+    const timerEl = document.getElementById("callTimer");
+    let sec = 1;
+    run.setInterval(()=>{
+      sec++;
+      if(timerEl) timerEl.textContent = "00:" + String(sec).padStart(2,"0");
+    }, 1000);
+
+    run.setTimeout(()=>{
+      try{ if(callVoiceAudio){ callVoiceAudio.pause(); callVoiceAudio.currentTime=0; callVoiceAudio=null; } }catch(e){}
+      startCallChat();
+    }, 13500);
+  };
+
+  function startCallChat(){
+    if(run.aborted) return;
+
+    // 대화창은 그대로 두고, 음성 종료 후 바로 ‘슬라이드 문제’로 진행
+    const callerNameIn =
+      (CALLER_NAME_OVERRIDE && CALLER_NAME_OVERRIDE.trim())
+        ? CALLER_NAME_OVERRIDE.trim()
+        : (exp.incoming?.name || "발신자");
+
+    const callerNumberIn =
+      (CALLER_NUMBER_OVERRIDE && CALLER_NUMBER_OVERRIDE.trim())
+        ? CALLER_NUMBER_OVERRIDE.trim()
+        : (exp.incoming?.number || "010-0000-0000");
+
+    main.innerHTML = `
+      <div class="expWrap sms">
+        <div class="chatHeader">
+          <div class="backBtn" id="callBack" aria-label="뒤로">←</div>
+          <div class="profile">
+            <div class="avatar">📞</div>
+            <div class="pbox">
+              <p class="pname">${escapeHtml(callerNameIn)}</p>
+              <p class="psub">${escapeHtml(callerNumberIn)}</p>
+            </div>
+          </div>
+          <div class="hdrIcons">
+            <div class="hico" id="callHint" title="힌트">i</div>
+          </div>
+        </div>
+        <div class="chatArea" id="callArea"></div>
+      </div>
+    `;
+
+    const callArea = document.getElementById("callArea");
+    if(callArea) callArea.innerHTML = "";
+    document.getElementById("callBack").onclick = ()=> backToCaseList();
+    document.getElementById("callHint").onclick = ()=> showBanner("힌트", easyText("전화에서 ‘금전/인증/압박’이 나오면 끊고 공식 기관에 확인하세요."), false);
+
+    const quizItemsRaw = buildCallQuizItems(exp);
+    const quizItems = Array.isArray(quizItemsRaw) ? quizItemsRaw.slice(0,4) : [];
+    const total = quizItems.length;
+
+    function endExp(){
+      if(run.aborted) return;
+      state.analytics.sessions.push(session);
+      go("result",{ expId }, true);
+    }
+
+    (async ()=>{
+      if(run.aborted) return;
+      if(!total){
+        // 문제 데이터가 없으면 바로 결과로(안전장치)
+        endExp();
+        return;
+      }
+
+      for(let i=0; i<total; i++){
+        const item = quizItems[i];
+        const res = await showCallSlideQuiz(item, run, { idx: i+1, total });
+        if(!res || run.aborted) return;
+
+        const c = res.choice || {};
+        const vector = c.vector || {};
+        session.picks.push({
+          q: item.core || item.prompt || "",
+          choiceText: c.text || "",
+          good: res.good,
+          vector,
+          delta: Number(c.score||0),
+          explain: c.why || c.feedback || ""
+        });
+        applyVectorToTotals(vector);
+      }
+
+      endExp();
+    })();
+  }
+}
+
+/*** 피싱 범죄예방수칙 ***/
+function renderReport(){
+  const slides = [
+    { t:"1) 멈추기", b: easyText("‘지금 당장’, ‘비밀’, ‘대신 결제’, ‘인증번호 알려줘’가 나오면 일단 멈추세요.") },
+    { t:"2) 공식 경로 확인", b: easyText("링크로 들어가지 말고, 앱/웹을 직접 열거나 대표번호·기존 저장번호로 콜백해 확인하세요.") },
+    { t:"3) 기록·차단·신고", b: easyText("대화 캡처·발신번호·계좌·링크를 확보한 뒤 차단하고 신고하면 피해 확산을 막을 수 있어요.") }
+  ];
+
+  main.innerHTML = `
+    <div class="reportWrap">
+      <div class="card" style="padding:16px;">
+        <div style="font-weight:1000;letter-spacing:-.02em;font-size:calc(16px + var(--fontUp));">피싱 범죄예방수칙</div>
+        <div style="margin-top:8px;color:var(--muted);font-size:calc(13px + var(--fontUp));line-height:1.55;">
+          3가지만 기억하세요</div>
+      </div>
+
+      <div style="height:12px;"></div>
+
+      <div class="slider card" style="padding:0;overflow:hidden;">
+        <div class="slideTrack" id="track">
+          ${slides.map(s=>`
+            <div class="slide">
+              <div class="card" style="padding:16px;">
+                <div style="font-weight:1000;letter-spacing:-.02em;font-size:calc(16px + var(--fontUp));">${escapeHtml(s.t)}</div>
+                <div style="margin-top:8px;color:rgba(31,36,48,.78);font-size:calc(13px + var(--fontUp));line-height:1.6;">
+                  ${escapeHtml(s.b)}
+                </div>
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+
+      <div class="dots" id="dots"></div>
+
+      <div class="cta" style="margin-top:12px;">
+        <button class="btn primary block" id="goExpFromReport">체험으로 가기</button>
+      </div>
+    </div>
+  `;
+
+  const track = document.getElementById("track");
+  const dots = document.getElementById("dots");
+  let idx = 0;
+
+  function renderDots(){
+    dots.innerHTML = slides.map((_,i)=>`<span class="dot ${i===idx?'on':''}"></span>`).join("");
+  }
+  function setIdx(i){
+    idx = Math.max(0, Math.min(slides.length-1, i));
+    const w = Math.min(window.innerWidth - 24, 560);
+    track.style.transform = `translateX(${-idx * w}px)`;
+    renderDots();
+  }
+
+  let startX = null;
+  track.parentElement.addEventListener("touchstart",(e)=>{ startX = e.touches[0].clientX; },{passive:true});
+  track.parentElement.addEventListener("touchend",(e)=>{
+    if(startX==null) return;
+    const endX = e.changedTouches[0].clientX;
+    const dx = endX - startX;
+    if(dx < -40) setIdx(idx+1);
+    if(dx > 40) setIdx(idx-1);
+    startX = null;
+  },{passive:true});
+
+  window.addEventListener("resize", ()=> setIdx(idx));
+  renderDots();
+  setIdx(0);
+
+  document.getElementById("goExpFromReport").onclick = ()=> go("case_list",{},true);
+}
+
+/*** 결과 화면 ***/
+function scoreToType(avg){
+  if(avg >= 85) return { type:"강력 방어형", msg:"대부분의 위험 신호를 잘 피하고 있어요." };
+  if(avg >= 70) return { type:"안정 방어형", msg:"기본은 탄탄해요. 다만 몇 가지 습관을 더 잡으면 완벽해요." };
+  if(avg >= 55) return { type:"주의 방어형", msg:"상황에 따라 실수할 수 있어요. ‘멈춤→공식확인’을 더 습관화하세요." };
+  return { type:"고위험 방어형", msg:"위험 신호에 흔들릴 수 있어요. 반드시 ‘검증’부터 하도록 루틴을 만들어요." };
+}
+function barColor(k){
+  if(k==="verify") return "var(--c-verify)";
+  if(k==="link") return "var(--c-link)";
+  if(k==="otp") return "var(--c-otp)";
+  if(k==="urgency") return "var(--c-urgency)";
+  if(k==="money") return "var(--c-money)";
+  if(k==="context") return "var(--c-context)";
+  return "var(--primary)";
+}
+function badgeStyleByType(t){
+  if(t==="강력 방어형") return { bg:"rgba(43,196,138,.16)", bd:"rgba(43,196,138,.24)", fg:"#1D9A6C" };
+  if(t==="안정 방어형") return { bg:"rgba(47,140,255,.16)", bd:"rgba(47,140,255,.22)", fg:"#2D70C9" };
+  if(t==="주의 방어형") return { bg:"rgba(245,158,11,.18)", bd:"rgba(245,158,11,.26)", fg:"#B86B1D" };
+  if(t==="고위험 방어형") return { bg:"rgba(255,107,107,.16)", bd:"rgba(255,107,107,.24)", fg:"#D45050" };
+}
+
+function renderResult({ expId }){
+  const exp = getSCENARIOS()[expId] || {};
+  const { overall, dims, totalQ, correctQ } = calcScoresFromSession(expId);
+  const avg = overall;
+
+  try{
+    localStorage.setItem(LS_LAST_SCORE, String(avg));
+    localStorage.setItem(LS_LAST_AT, String(Date.now()));
+    localStorage.removeItem(LS_SHARED_VIEW);
+  }catch(e){}
+
+  const typeInfo = scoreToType(avg);
+  const bs = badgeStyleByType(typeInfo.type);
+
+  const scoredDims = DIMENSIONS.filter(d => Number.isFinite(dims[d.key]));
+  const strongList = scoredDims
+    .filter(d => Number(dims[d.key]) >= 70)
+    .sort((a,b)=> (Number(dims[b.key]) - Number(dims[a.key])));
+  const weakList = scoredDims
+    .filter(d => Number(dims[d.key]) < 70)
+    .sort((a,b)=> (Number(dims[a.key]) - Number(dims[b.key])));
+
+  const hasWeak = weakList.length > 0;
+  const hasStrong = strongList.length > 0;
+
+  const keyPoints = Array.isArray(exp.keyPoints) ? exp.keyPoints : [];
+  const oneLiner = exp.oneLiner || "멈추고(Stop) 공식 경로로 확인(Check) 후 행동(Action).";
+
+  const ses = [...state.analytics.sessions].reverse().find(s => s.expId === expId);
+  const picks = ses?.picks || [];
+  const wrongPicks = picks.filter(p=>!p.good);
+  const rightPicks = picks.filter(p=>p.good);
+
+  try{
+    if(ses){
+      localStorage.setItem(LS_LAST_EXP, String(expId));
+      localStorage.setItem(LS_LAST_SESSION, JSON.stringify(ses));
+    }
+  }catch(e){}
+
+  function pickDims(p){
+    const keys = DIMENSIONS.filter(d => Number(p.vector?.[d.key]||0) !== 0).map(d=>d.label);
+    return keys.length ? keys.join(", ") : "기타";
+  }
+
+  function scoreRangeInfo(n){
+    const v = Number(n||0);
+    if(v >= 85) return { label:"양호", range:"85 ~ 100", color:"#1D9A6C" };
+    if(v >= 70) return { label:"보통", range:"70 ~ 84", color:"#2D70C9" };
+    if(v >= 55) return { label:"주의", range:"55 ~ 69", color:"#B86B1D" };
+    return { label:"취약", range:"0 ~ 54", color:"#D45050" };
+  }
+  const rinfo = scoreRangeInfo(avg);
+
+  main.innerHTML = `
+  <div class="resultWrap">
+
+    <div class="card" style="padding:16px;">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+        <div style="font-weight:1000;letter-spacing:-.02em;font-size:calc(16px + var(--fontUp));">나의 종합 안전지수</div>
+        <div style="font-size:calc(12.5px + var(--fontUp));font-weight:950;color:rgba(31,36,48,.72);">[점수가 높을수록 “안전”]</div>
+      </div>
+
+      <div class="ringWrap">
+        <div class="ringSvgWrap" aria-label="안전지수 원형 그래프">
+          <svg width="160" height="160" viewBox="0 0 160 160">
+            <defs>
+              <linearGradient id="ringGrad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="160" y2="160">
+                <stop offset="0%" stop-color="#2F8CFF"/>
+                <stop offset="25%" stop-color="#12B981"/>
+                <stop offset="50%" stop-color="#F59E0B"/>
+                <stop offset="75%" stop-color="#FB7185"/>
+                <stop offset="100%" stop-color="#6A2BD1"/>
+              </linearGradient>
+            </defs>
+            <circle cx="80" cy="80" r="60" fill="none" stroke="rgba(31,36,48,.10)" stroke-width="16" />
+            <circle id="ringProg" cx="80" cy="80" r="60" fill="none" stroke="url(#ringGrad)"
+              stroke-width="16" stroke-linecap="round" transform="rotate(-90 80 80)" stroke-dasharray="0 999" />
+          </svg>
+          <div class="ringCenter">
+            <div class="n">${avg}</div>
+          </div>
+        </div>
+
+        <div class="badgeType" style="background:${bs.bg}; border-color:${bs.bd}; color:${bs.fg};">${escapeHtml(typeInfo.type)}</div>
+
+        <div style="color:rgba(31,36,48,.72);font-size:calc(13px + var(--fontUp));line-height:1.55;text-align:center;">
+          ${escapeHtml(easyText(typeInfo.msg))}
+        </div>
+
+        <!-- ✅ [추가] 3문항(혹은 n문항) 기반 결과가 바로 보이게 -->
+        <div style="color:rgba(31,36,48,.70);font-size:calc(12.5px + var(--fontUp));line-height:1.45;text-align:center;">
+          총 <b>${totalQ}</b>문제 중 <b>${correctQ}</b>문제를 맞혔어요.
+        </div>
+      </div>
+
+      <div class="cta" style="margin-top:12px;">
+        <button class="btn primary" id="retryBtn" style="flex:1;">다시 체험</button>
+        <button class="btn ghost" id="goCasesBtn" style="flex:1;">사례로</button>
+      </div>
+    </div>
+
+    <div class="card" style="padding:16px;margin-top:12px;">
+      <div style="font-weight:1000;letter-spacing:-.02em;font-size:calc(15px + var(--fontUp));">점수 안내표</div>
+      <div class="scoreTable" style="margin-top:10px;border:1px solid rgba(0,0,0,.08); border-radius:14px; overflow:hidden;">
+        <div style="display:grid;grid-template-columns:1fr 1fr; background:rgba(31,36,48,.03); font-weight:1000;">
+          <div style="padding:10px 12px;">구간</div>
+          <div style="padding:10px 12px;">등급</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;">
+          <div style="padding:10px 12px;${rinfo.label==='양호'?'background:rgba(43,196,138,.10);':''}">85 ~ 100</div>
+          <div style="padding:10px 12px;color:#1D9A6C;font-weight:1000;${rinfo.label==='양호'?'background:rgba(43,196,138,.10);':''}">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+              <span>양호</span>
+              ${rinfo.label==='양호' ? `<span style="font-size:calc(12px + var(--fontUp));font-weight:1000;color:rgba(31,36,48,.55);">현재 내 구간</span>` : ``}
+            </div>
+          </div>
+
+          <div style="padding:10px 12px;${rinfo.label==='보통'?'background:rgba(47,140,255,.10);':''}">70 ~ 84</div>
+          <div style="padding:10px 12px;color:#2D70C9;font-weight:1000;${rinfo.label==='보통'?'background:rgba(47,140,255,.10);':''}">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+              <span>보통</span>
+              ${rinfo.label==='보통' ? `<span style="font-size:calc(12px + var(--fontUp));font-weight:1000;color:rgba(31,36,48,.55);">현재 내 구간</span>` : ``}
+            </div>
+          </div>
+
+          <div style="padding:10px 12px;${rinfo.label==='주의'?'background:rgba(245,158,11,.12);':''}">55 ~ 69</div>
+          <div style="padding:10px 12px;color:#B86B1D;font-weight:1000;${rinfo.label==='주의'?'background:rgba(245,158,11,.12);':''}">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+              <span>주의</span>
+              ${rinfo.label==='주의' ? `<span style="font-size:calc(12px + var(--fontUp));font-weight:1000;color:rgba(31,36,48,.55);">현재 내 구간</span>` : ``}
+            </div>
+          </div>
+
+          <div style="padding:10px 12px;${rinfo.label==='취약'?'background:rgba(255,107,107,.10);':''}">0 ~ 54</div>
+          <div style="padding:10px 12px;color:#D45050;font-weight:1000;${rinfo.label==='취약'?'background:rgba(255,107,107,.10);':''}">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+              <span>취약</span>
+              ${rinfo.label==='취약' ? `<span style="font-size:calc(12px + var(--fontUp));font-weight:1000;color:rgba(31,36,48,.55);">현재 내 구간</span>` : ``}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:16px;margin-top:12px;">
+      <div style="font-weight:1000;letter-spacing:-.02em;font-size:calc(15px + var(--fontUp));">세부 취약 / 강점 분석</div>
+      <div style="margin-top:6px;color:rgba(31,36,48,.70);font-size:calc(13px + var(--fontUp));line-height:1.5;">
+        <b>100</b>에 가까울수록 강점, 낮을수록 해당 영역이 취약할 수 있어요.
+      </div>
+
+      <div class="bars">
+        ${DIMENSIONS.map(d=>{
+          const raw = dims[d.key];
+          const v = Number.isFinite(raw) ? raw : 0;
+          const label = Number.isFinite(raw) ? String(raw) : "—";
+          return `
+          <div class="barRow">
+            <div class="k">${escapeHtml(d.label)}</div>
+            <div class="barTrack">
+              <div class="barFill" style="--v:${v}; --bar-color:${barColor(d.key)};"></div>
+            </div>
+            <div class="v">${label}</div>
+          </div>`;
+        }).join("")}
+      </div>
+
+      <div class="plainList">
+        <div class="ttl">취약 포인트(개선 우선순위)</div>
+        ${
+          hasWeak
+            ? weakList.map(w=>`<div>• <b>${escapeHtml(w.label)}</b> (${Number.isFinite(dims[w.key])?dims[w.key]:"—"}점) — ${escapeHtml(easyText(w.tip))}</div>`).join("")
+            : `<div>• 취약 포인트가 없습니다 👍</div>`
+        }
+      </div>
+
+      <div class="plainList">
+        <div class="ttl">강점 포인트(유지하면 좋은 습관)</div>
+        ${
+          hasStrong
+            ? strongList.map(s=>`<div>• <b>${escapeHtml(s.label)}</b> (${Number.isFinite(dims[s.key])?dims[s.key]:"—"}점) — ${escapeHtml(easyText(s.tip))}</div>`).join("")
+            : `<div>• 강점 포인트가 없습니다.</div>`
+        }
+      </div>
+    </div>
+
+    <div class="card" style="padding:16px;margin-top:12px;">
+      <div class="boxedSection">
+        <div class="plainList" style="margin-top:0;">
+          <div class="ttl">내가 취약했던 문항(틀린 문제)</div>
+          ${wrongPicks.length ? wrongPicks.map(p=>`
+            <div style="margin-top:8px;">
+              • <b>${escapeHtml(easyText(p.q))}</b><br>
+              <span style="color:rgba(31,36,48,.75);">관련 영역: ${escapeHtml((()=>{ const keys = DIMENSIONS.filter(d => Number(p.vector?.[d.key]||0) !== 0).map(d=>d.label); return keys.length ? keys.join(", ") : "기타"; })())}</span><br>
+              <span style="color:#D45050;font-weight:900;">왜 취약?</span> ${escapeHtml(easyText(p.explain || "설명 없음"))}
+            </div>
+          `).join("") : `<div>• 틀린 문항이 없습니다 👍</div>`}
+        </div>
+      </div>
+
+      <div class="boxedSection">
+        <div class="plainList" style="margin-top:0;">
+          <div class="ttl">내 강점 문항(맞힌 문제)</div>
+          ${rightPicks.length ? rightPicks.map(p=>`
+            <div style="margin-top:8px;">
+              • <b>${escapeHtml(easyText(p.q))}</b><br>
+              <span style="color:rgba(31,36,48,.75);">관련 영역: ${escapeHtml((()=>{ const keys = DIMENSIONS.filter(d => Number(p.vector?.[d.key]||0) !== 0).map(d=>d.label); return keys.length ? keys.join(", ") : "기타"; })())}</span><br>
+              <span style="color:#1D9A6C;font-weight:900;">왜 강점?</span> ${escapeHtml(easyText(p.explain || "설명 없음"))}
+            </div>
+          `).join("") : `<div>• 맞힌 문항이 없습니다.</div>`}
+        </div>
+      </div>
+
+      <div class="plainList">
+        <div class="ttl">핵심 체크 포인트(이번 시나리오 유형)</div>
+        ${keyPoints.length ? keyPoints.map(p=>`<span class="pill">${escapeHtml(easyText(p))}</span>`).join("") : `<div>• ${escapeHtml(easyText("멈춤 → 공식 경로 확인 → 기록/차단/신고"))}</div>`}
+      </div>
+
+      <div class="plainList">
+        <div class="ttl">한줄 요약</div>
+        <div>${escapeHtml(easyText(oneLiner))}</div>
+      </div>
+
+      <div class="cta" style="margin-top:12px;">
+        <button class="btn ghost block" id="shareFromResult">결과 공유하기</button>
+      </div>
+    </div>
+  </div>
+  `;
+
+  const circle = document.getElementById("ringProg");
+  const r = 60;
+  const c = 2 * Math.PI * r;
+  const prog = Math.max(0, Math.min(100, avg)) / 100;
+  circle.setAttribute("stroke-dasharray", `${(c*prog).toFixed(2)} ${(c*(1-prog)).toFixed(2)}`);
+
+  document.getElementById("retryBtn").onclick = ()=>{
+    resetTotals();
+
+    if(exp?.type === "messenger"){
+      state.pendingExp = { expId, type:"messenger" };
+
+      loudNotify(state.run);
+      showBanner("알림", "메시지가 도착했습니다.", false);
+
+      clearStickyNotifyTimer();
+      stickyNotifyTimer = setTimeout(()=>{
+        loudNotify(state.run);
+        showBanner("알림", "아래 알림을 눌러 내용을 확인하세요.", true);
+      }, 2000);
+
+      go("push_gate", { expId }, true);
+      return;
+    }
+
+    if(exp?.type === "call"){
+      go("exp_call", { expId }, true);
+      return;
+    }
+
+    go("case_list", {}, true);
+  };
+
+  document.getElementById("goCasesBtn").onclick = ()=> go("case_list",{},true);
+  document.getElementById("shareFromResult").onclick = ()=> shareApp(`내 피싱 예방 안전지수는 ${avg}점(${typeInfo.type})이야, 같이 체험해봐요!`);
+}
+
+
+/*** 최초 진입 ***/
+go("home", {}, true);
+
+/* === 카테고리와 사례와 시나리오 === */
+window.DATA_CATEGORIES = {
+  kakao:   { label:"메신져 피싱",   chip:"purple" },
+  sms:     { label:"문자 사기", chip:"orange" },
+  call:    { label:"보이스피싱",   chip:"red" },
+  job:     { label:"피싱",   chip:"green" },
+  romance: { label:"메신져 피싱",   chip:"purple" },
+  freeze:  { label:"메신져 피싱",   chip:"purple" },
+};
+
+/* 대화 속도 */
+window.DIALOG_FLOW_SPEED_MS = 3500;
+
+window.CASES = [
+  { id:"case_family", title:"가족 사칭", subtitle:"새 번호 · 통화/영상통화 회피 · ‘급해’ 압박 · 링크/인증번호(OTP) 요구", category:"kakao", experienceId:"exp_m_family",
+    info:{ victims:["부모님 / 보호자"], keywords:["새 번호,","통화 또는 영상통화 회피,","급해,","링크,","인증번호(OTP)"], summary:"자녀/가족을 사칭해 ‘급한 상황’으로 몰아가고, 링크 클릭 또는 인증번호(OTP) 공유를 유도해 결제·계정·금융 피해로 이어지게 하는 메신저 피싱입니다." } },
+
+  { id:"case_romance", title:"로맨스 스캠", subtitle:"감정 유대 · 영상통화 회피 · 고수익 투자 유도 · 출금 미끼 · 추가입금(KYC/세금) · OTP/상품권", category:"romance", experienceId:"exp_m_romance",
+    info:{ victims:["전 연령(관계/감정에 취약한 사람)"], keywords:["감정 유대","영상통화 회피","고수익 투자","출금 지연","추가 입금(KYC/세금)","OTP/상품권"], summary:"친밀감을 빠르게 쌓은 뒤 ‘고수익 투자/출금’으로 유인하고, 출금 조건(세금·KYC·보증금 등)이나 OTP/상품권을 요구해 돈과 계정을 탈취하는 메신저 피싱입니다." } },
+
+  { id:"case_investigation", title:"수사기관 사칭", subtitle:"범죄 연루 협박 · 비밀수사/통화유지 · 현금 인출 · 수거책/연락책 대기 · 보안앱/원격앱", category:"call", experienceId:"exp_c_investigation",
+    info:{ victims:["전 연령(불안에 취약한 사람)"], keywords:["사건번호","비밀수사","통화유지","현금 인출","수거책/연락책","보안앱/원격앱"], summary:"검찰/경찰/금감원을 사칭해 ‘범죄 연루’로 겁을 준 뒤 비밀유지·통화유지를 강요하고, 현금 인출 또는 수거책 전달·앱 설치로 금전을 빼앗는 보이스피싱입니다." } },
+
+  { id:"case_self_hostage", title:"셀프 감금 협박", subtitle:"고립 지시 · 모텔/숙소 이동 · 약식명령/강제수사/영장집행 협박 · 통화유지 · ATM/현금화", category:"call", experienceId:"exp_c_self_hostage",
+    info:{ victims:["전 연령(불안에 취약한 사람)"], keywords:["고립 지시","모텔/숙소 이동","약식명령","강제수사","영장집행 협박","ATM/현금화"], summary:"수사기관을 사칭해 피해자를 ‘혼자 있는 곳’으로 이동시키고 통화유지를 강요하며, 협박으로 판단을 마비시킨 뒤 ATM 현금화·전달 등으로 금전을 편취하는 보이스피싱입니다." } },
+
+  { id:"case_loan_switch_call", title:"대출 빙자 사기", subtitle:"저금리 대환 · 앱 설치/원격조작 · 기존대출 상환/예치금/수수료 선입금 · ‘안전계좌’", category:"call", experienceId:"exp_c_loan_refi_rate",
+    info:{ victims:["대출 이용자(금리 부담이 큰 사람)"], keywords:["저금리 전환","대환/갈아타기","앱 설치","원격조작","선입금(상환/예치금)","안전계좌"], summary:"저금리 대환을 미끼로 링크/앱 설치나 원격조작을 유도하고, 기존대출 상환금·예치금·수수료 등 선입금을 요구해 돈을 빼앗는 보이스피싱입니다." } },
+
+  { id:"case_post_card_call", title:"카드 배송 사칭", subtitle:"카드 오배송/미신청 발급 · 가짜 고객센터 유도 · 링크/OTP · 악성앱/권한 요구", category:"call", experienceId:"exp_c_post_card",
+    info:{ victims:["전 연령(카드 발급/재발급 경험자)"], keywords:["카드 오배송/반송","미신청 카드","가짜 고객센터","문자 링크","OTP","앱 설치/권한"], summary:"우체국/카드배송/사고예방팀을 사칭해 불안을 조성하고, 가짜 고객센터·문자 링크·OTP·앱 설치로 개인정보·계정·금융 피해를 유발하는 보이스피싱입니다." } },
+
+ { id:"case_noshow", title:"노쇼 사기", subtitle:"공공기관/단체예약 사칭 → 고가 주류/물품 대리구매 · 선송금 유도", category:"job", experienceId:"exp_c_noshow",
+    info:{ victims:["자영업자/소상공인"], keywords:["단체예약","공공기관 사칭","고가 주류/물품","대리구매","선송금","예약금"], summary:"단체예약으로 신뢰를 만든 뒤 ‘취급하지 않는 고가 물품을 대신 구매해달라’며 선송금을 유도해 내 돈이 먼저 나가게 만드는 노쇼형 보이스피싱입니다." } },
+
+];
+
+
+/* ===== 시나리오들 ===== */
+
+/* 가족사칭 */
+window.SCENARIOS.exp_m_family = {
+  type:"messenger",
+  ui:"kakao",
+  speedMs: window.DIALOG_FLOW_SPEED_MS,
+  title:"가족사칭(카톡)",
+  introText: "자녀를 사칭해 새 번호로 연락하고, 통화/영상통화를 피하면서 인증번호(OTP)나 링크 클릭을 유도하는 수법입니다.",
+  notify:{ title:"카톡", body:"‘자녀’에게서 메시지가 왔어요." },
+  header:{ title:"저장되지 않은 번호", sub:"새 번호/급한 부탁" },
+  keyPoints:[
+    "‘새 번호 + 통화/영상통화 안 됨’이면 일단 멈추기",
+    "내가 저장해둔 번호로 직접 전화/영상통화로 확인(콜백)",
+    "링크 클릭·인증번호(OTP) 전달·결제/승인 요구는 즉시 중단"
+  ],
+  oneLiner:"새 번호로 ‘급해’라고 몰아가면, 송금/인증 전에 ‘내가 아는 번호로 확인’이 먼저입니다.",
+  steps:[
+    {type:"msg",from:"other",text:"엄마 나 폰이 고장나서 수리 맡겼어, 지금 임시폰이라 번호가 바꼈어"},
+    {type:"msg",from:"other",text:"통화는 안돼ㅠ"},
+    {type:"msg",from:"other",text:"지금 당장 급하게 도움이 필요한데, 답장 좀 해줘~"},
+    {type:"q",prompt:"'자녀'라고하면서 ‘새 번호’로 급하게 도움을 요청하면?",
+      after:{
+        good:["나 엄마 딸 맞아, 왜 못 믿어ㅠ, 진짜 급해서 그래"],
+        bad:["휴대폰 떨어뜨렸는데 고장나가지고ㅠ"]
+      },
+      choices:[
+        {text:"저장된 자녀 번호로 직접 전화 또는 영상통화로 확인", score:+20,
+         feedback:"정답이에요. ‘새 번호 + 급해’는 가족사칭에서 가장 흔한 시작입니다. 저장된 번호로 콜백/영상통화로 확인해야 해요.",
+         why:"사기범은 통화·영상통화를 피해서 ‘확인’을 못 하게 만들고, 카톡 대화만으로 결제/인증 단계로 끌고 갑니다.",
+         vector:V(+2,0,0,+2,0,+2), reply:"이상한데..."},
+        {text:"급하다니 일단 도와주고 나중에 확인", score:-20,
+         feedback:"위험해요. ‘지금 당장’에 반응하면 링크 클릭·인증번호 전달·송금으로 바로 이어질 수 있어요. 확인이 먼저입니다.",
+         why:"시간 압박은 판단을 흐리게 만들어 ‘검증(콜백)’을 못 하게 하려는 수법이에요.",
+         vector:V(-2,0,0,-2,-2,-1), reply:"조심 좀 하지, 뭐 도와주면 돼?"}
+      ]},
+
+    {type:"msg",from:"other",text:"지금 파손보험금 신청해야 하는데 임시폰이라 엄마 걸로 해야 해"},
+    {type:"msg",from:"other",text:"옆에 사람들이 많아서 통화는 안되고 엄마 휴대폰으로 '확인'만 해주면 바로 끝나"},
+    {type:"msg",from:"other",text:"엄마가 대신 ‘확인’만 해주면 바로 끝나. 딱 이것만!"},
+    {type:"q",prompt:"‘통화는 안 되고, 카톡으로만’이라 고집하면?",
+      after:{
+        good:["아… 사람들이 많아서 통화는 진짜 안 돼…","카톡으로만 좀 해줘…"],
+        bad:["응, 간단한거라 금방 끝나는거래"]
+      },
+      choices:[
+        {text:"통화로 자녀가 확인이 안된다면 거절", score:+20,
+         feedback:"정답이에요. 통화/영상통화 회피는 ‘가족사칭’의 핵심 신호입니다. 여기서 멈추는 게 맞아요.",
+         why:"진짜 가족이면 최소한 ‘내가 아는 번호로 다시 통화’가 가능합니다. 회피가 지속되면 사기 가능성이 큽니다.",
+         vector:V(+2,0,0,+2,0,+2), reply:"아니, 전화 받아봐~"},
+        {text:"카톡으로만 해도 되니 하라는 대로 해준다", score:-20,
+         feedback:"위험해요. ‘확인만’이라고 해도 다음 단계는 링크/인증번호/결제 승인으로 이어질 수 있어요.",
+         why:"사기범은 ‘작은 부탁’으로 시작해 점점 더 위험한 요구(인증/결제)로 확장합니다.",
+         vector:V(-2,0,0,-2,-2,-2), reply:"응, 어떻게 하면 돼?."}
+      ]},
+
+    {type:"msg",from:"other",text:"엄마폰으로 카드사에서 ‘본인확인’ 링크가 갈거야"},
+    {type:"msg",from:"other",text:"https://verify.example"},
+    {type:"msg",from:"other",text:"링크 들어가서 ‘문자로 온 인증번호’만 나한테 보내주면 돼!"},
+    {type:"q",prompt:"‘링크로 들어가서 ‘문자로 온 인증번호’만 나한테 보내주면 돼!",
+      after:{
+        good:["아니 지금 시간이 없어!","빨리 좀 해줘ㅠ"],
+        bad:["응, 링크 들어가서 인증 진행하고, 인증번호 오면 바로 알려줘"]
+      },
+      choices:[
+        {text:"링크는 누르지 않고 자녀에게 직접 전화 하기", score:+20,
+         feedback:"정답이에요. 링크는 가짜 인증 화면(스미싱)일 수 있어요. 링크 클릭 없이 ‘내가 아는 번호로 확인’이 안전합니다.",
+         why:"인증번호(OTP)는 결제/로그인 승인에 쓰일 수 있어요. 남에게 말하는 순간 피해로 이어질 수 있습니다.",
+         vector:V(+2,+2,0,+1,0,+1), reply:"링크는 안 눌러. 공식 앱에서 내가 직접 확인할게. 인증번호도 못 알려줘."},
+        {text:"링크를 누르고, 인증번호를 불러준다", score:-10,
+         feedback:"위험해요. 링크 클릭은 사기 흐름의 시작일 수 있고, 인증번호 전달은 ‘승인’ 자체가 될 수 있어요.",
+         why:"사기범은 ‘인증번호만’이라고 말하지만 실제로는 결제/계정 탈취에 필요한 마지막 퍼즐일 수 있습니다.",
+         vector:V(0,-1,0,-1,0,0), reply:"응 했어, 인증번호는 112345야"}
+      ]}
+  ]
+};
+
+
+/* 로맨스스캠 */
+window.SCENARIOS.exp_m_romance = {
+  type:"messenger",
+  ui:"kakao",
+  speedMs: window.DIALOG_FLOW_SPEED_MS,
+  title:"로맨스 스캠(카톡 스미싱)",
+  notify:{ title:"카톡", body:"친해진 사람이 투자/도움을 요청했어요." },
+  header:{ title:"엘리스 장", sub:"코인/출금/인증" },
+  keyPoints:[
+    "영상통화/만남 회피 + 친밀감 급상승 = 의심",
+    "검증 안 된 ‘해외/사설 거래소’ 링크는 클릭 금지",
+    "‘출금하려면 추가 입금(KYC/세금/보증금)’은 100% 사기 신호",
+    "OTP/인증번호·상품권 요구는 즉시 중단/차단"
+  ],
+  oneLiner:"친해졌는데 ‘투자·출금·추가입금·OTP’가 나오면, 감정 말고 ‘검증’부터 하세요.",
+  steps:[
+    {type:"msg",from:"other",text:"자기야~ 나 OO거래소에서 코인 사가지고, 매일 5% 수익을 보고 있잖아!"},
+    {type:"msg",from:"other",text:"어제도 200만원 정도 벌었어요~"},
+    {type:"msg",from:"other",text:"자기도 같이 해서 우리 여행가요~"},
+    {type:"q",prompt:"친분을 쌓은 뒤, 가상자산 거래로 고수익을 유인하면?",
+      after:{ good:["왜 못 믿어ㅠ 내 친구도 여기서 큰 돈 벌었어!"], bad:["그래, 해보자!"] },
+      choices:[
+        {text:"얼굴도 모르는데 갑자기 투자나 돈 이야기를 꺼내면 중단", score:+20,
+         feedback:"정답이에요. 관계(감정)를 급하게 만들고 곧바로 ‘돈(투자)’으로 넘어가면 로맨스 스캠 가능성이 높아요.",
+         why:"사기범은 실체 확인(영상통화/만남)을 피하면서 감정으로 흔들어 투자 결정을 빠르게 만들려 합니다.",
+         vector:V(+2,0,0,+2,+2,+2), reply:"갑자기 돈 이야기는 아닌 것 같아"},
+        {text:"카톡만으로도 충분하니 계속 대화한다", score:-10,
+         feedback:"위험 신호예요. 대화가 길어질수록 ‘투자 링크/입금’으로 자연스럽게 넘어갈 수 있어요.",
+         why:"시간이 쌓이면 신뢰가 생겨 경계가 낮아지고, 금전 요구를 거절하기 어려워집니다.",
+         vector:V(-1,0,0,-1,-1,-1), reply:"오, 좋은데?"}
+      ]},
+
+    {type:"msg",from:"other",text:"여기 국제 거래 사이트가 진짜 좋아~"},
+    {type:"msg",from:"other",text:"처음엔 소액으로 해봐! 출금도 잘 돼~ㅎㅎ"},
+    {type:"msg",from:"other",text:"가입 링크: https://verify.example"},
+    {type:"q",prompt:"‘하루 수익 보장과 출금 잘 된다'며 생소한 거래소 링크 가입을 유도하면?",
+      after:{ good:["나도 내역 보여줄게요!","우리 둘만 알고 크게 벌어보자!"], bad:["오케이 링크로 가입했어. 다음은?"] },
+      choices:[
+        {text:"인증되지 않은 링크 가입과 입금은 거절", score:+20,
+         feedback:"정답이에요. 로맨스 스캠은 ‘검증 안 된 거래소/가짜 사이트 링크’로 유도하는 경우가 많습니다.",
+         why:"링크 클릭 → 로그인/입금으로 이어지면, 이후 출금 제한과 추가입금 요구로 덫이 시작될 수 있어요.",
+         vector:V(+2,+1,0,+2,+2,+2), reply:"모르는 거래소 링크는 안 들어가. 공식 정보로 확인할게."},
+        {text:"소액이니 일단 가입하고 입금해본다", score:-20,
+         feedback:"위험해요. 초반에 ‘소액 출금 성공’은 신뢰를 만들기 위한 미끼일 수 있어요.",
+         why:"처음엔 안심시킨 뒤, 투자금이 커지면 출금을 막고 ‘추가 입금’을 요구하는 패턴이 흔합니다.",
+         vector:V(-2,-1,0,-2,-2,-2), reply:"소액으로만 먼저 해볼게. 계좌 알려줘."}
+      ]},
+
+    {type:"msg",from:"other",text:"지금 출금하려면 인증이 필요하거든?"},
+    {type:"msg",from:"other",text:"고액 거래는 추가금을 먼저 넣어야 출금 가능할꺼야"},
+    {type:"q",prompt:"‘출금하려면 추가 입금’을 요구하면?",
+      after:{ good:["이거 규정이라 어쩔 수 없어ㅠ","지금만 넘기면 바로 출금돼!"], bad:["알겠어, 추가 입금하면 바로 출금되지?"] },
+      choices:[
+        {text:"추가 입금 요구는 무조건 사기이므로 즉시 중단", score:+20,
+         feedback:"정답이에요. ‘출금 조건으로 추가 입금’은 전형적인 투자사기(로맨스 스캠) 신호입니다.",
+         why:"추가 입금 후에도 수수료/세금/보안검증 등 다른 명목으로 끝없이 요구가 이어질 수 있어요.",
+         vector:V(+2,0,+2,+2,+2,+2), reply:"출금하려고 돈을 더 넣으라는 건 이상하다. 여기서 끝. 연락하지마."},
+        {text:"이미 넣은 돈이 아까우니 추가 입금한다", score:-20,
+         feedback:"매우 위험해요. ‘이미 넣은 돈’ 때문에 더 넣게 만드는 게 사기의 핵심 심리(매몰비용)예요.",
+         why:"한 번 더 넣으면 ‘마지막’이라며 계속 요구가 커지는 흐름이 흔합니다.",
+         vector:V(-2,0,-2,-2,-2,-2), reply:"이번이 마지막이 맞지?"}
+      ]},
+  ]
+};
+
+
+/* ===== 전화 시나리오들 ===== */
+
+window.SCENARIOS.exp_c_noshow = {
+  type:"call",
+  speedMs: window.DIALOG_FLOW_SPEED_MS,
+  title:"노쇼(보이스피싱)",
+  incoming:{ name:"단체예약 고객 ", number:"010-83XX-01X8" },
+  voiceUrl: "https://koreapolkim.github.io/vv/no.mp3",
+  keyPoints:[
+    "공공기관/방송사/유명인 사칭 ‘단체예약’은 신분 확인(부서·담당자·대표번호 콜백) 필수",
+    "취급 안 하는 ‘고가 주류/물품’ 대리구매·선송금 요구는 즉시 거절",
+    "통화 끊고 기관 ‘대표번호’로 콜백 확인 + 예약금/선결제 원칙"
+  ],
+  oneLiner:"단체예약이 와도 ‘대리구매/선송금’ 요구가 나오면 끊고, 공식번호로 콜백 확인하세요.",
+  callQuiz:[
+    {
+      core:"안녕하세요. ○○시청 총무팀인데요. 오늘 저녁 20명 단체 회식 예약 가능할까요? 사장님 그리고 OO와인이라고 따로 준비가능할까요?",
+      choices:[
+        {text:"네 가능합니다. 몇 시로 잡아드릴까요?", score:-10,
+         feedback:"주의가 필요해요. 예약 자체는 받을 수 있어도 ‘기관 사칭’일 수 있으니, 다음 단계에서 대리구매/선송금이 붙는지 경계해야 합니다.",
+         why:"노쇼 사기는 ‘단체/기관’으로 신뢰를 만든 뒤, 곧바로 돈이 나가게 만드는 요구(대리구매/송금)로 넘어갑니다.",
+         vector:V(-1,0,0,-1,-1,-1)},
+        {text:"저희 가게는 말씀하신 술을 취급하지 않아요", score:+20,
+         feedback:"정답이에요. ‘내가 끊고 대표번호로 다시 확인(콜백)’이 노쇼 사기 예방의 핵심입니다.",
+         why:"발신번호·신분·명함 사진은 위조될 수 있어요. 공식 대표번호 콜백이 검증입니다.",
+         vector:V(+2,0,0,+2,0,+2)}
+      ]
+    },
+    {
+      core:"아, 팀장님이 그 와인을 꼭 원해서요. 믿고 ‘미리’ 구매해주시면 10% 더 결제하겠습니다.",
+      choices:[
+        {text:"네, 제가 아는 업체가 없어서요, 혹시 그런 와인은 어디서 구하나요?", score:-20,
+         feedback:"매우 위험해요. ‘대리구매/선송금’은 노쇼 사기의 핵심 단계입니다. 송금하는 순간 피해가 발생할 수 있어요.",
+         why:"사기범이 지정한 ‘업체/계좌’는 가짜 판매처·사기계좌일 가능성이 큽니다.",
+         vector:V(-2,0,0,-2,-2,-2)},
+        {text:"저희는 고가의 와인을 구매할 수 없어요", score:+20,
+         feedback:"정답이에요. 대리구매는 거절하고, 예약금/선결제 등 정상 절차만 받는 게 안전합니다.",
+         why:"정상 예약이면 업체가 직접 구매·결제하거나, 최소한 예약금 등 공식 결제 절차로 진행할 수 있어요.",
+         vector:V(+2,0,0,+2,+2,+2)}
+      ]
+    },
+    {
+      core:"OO회사에만 파는 술인데 제가 불러드리는 번호로 연락해서 미리 준비 가능할까요?",
+      choices:[
+        {text:"네, 감사합니다! 전화번호 불러주세요", score:-20,
+         feedback:"위험해요. ‘추가로 더 준다’는 말로 판단을 흐리고, 검증 없이 다음 단계(송금/링크 결제)로 유도할 수 있어요.",
+         why:"사기범은 ‘이익’처럼 보이게 만들어 경계를 낮춘 뒤, 결국 내 돈이 먼저 나가게 만듭니다.",
+         vector:V(-2,0,0,-2,-2,-2)},
+        {text:"예약금 없이는 말씀하신대로 어려울 것 같습니다", score:+20,
+         feedback:"정답이에요. 예약금/선결제 원칙 + 공식번호 콜백 확인이 가장 안전합니다.",
+         why:"공문/서류를 보내도 ‘송금’은 별개예요. 검증과 결제 절차를 분리해야 피해를 막을 수 있어요.",
+         vector:V(+2,0,0,+2,+2,+2)}
+      ]
+    },
+ {
+      core:"거기 업체가 선결제만 받는다네요. 사장님이 연락하셔서 구매해주시고 입금해주시고 영수증만 보내주세요. 저희가 음식값이랑 같이 결제할게요.",
+      choices:[
+        {text:"알겠습니다, 준비해 두겠습니다 이따 뵐게요.", score:-20,
+         feedback:"매우 위험해요. 노쇼 사기의 핵심은 ‘대리결제/선결제’로 내 돈이 먼저 나가게 만드는 겁니다.",
+         why:"상대가 예약/공문으로 믿게 만든 뒤, ‘대신 결제’를 시키고 잠적하거나 추가 결제를 요구할 수 있어요.",
+         vector:V(-2,0,0,-2,-2,-2)},
+        {text:"죄송합니다 요새 노쇼사기가 많아서요, 예약금을 보내주셔야 예약이 가능할 것 같습니다", score:+20,
+         feedback:"정답이에요. 어떤 이유든 ‘대리결제/선결제’ 요구는 노쇼 사기 가능성이 큽니다.",
+         why:"진짜 고객이면 예약금 입금/정상 결제 절차를 따를 수 있어요. 내 명의로 결제/송금은 위험합니다.",
+         vector:V(+2,0,0,+2,+2,+2)}
+      ]
+    },
+  ],
+};
+
+/* 수사기관 사칭 */
+window.SCENARIOS.exp_c_investigation = {
+  type:"call",
+  speedMs: window.DIALOG_FLOW_SPEED_MS,
+  title:"수사기관 사칭(보이스피싱)",
+  incoming:{ name:"서울중앙지방검찰청", number:"02-23XX-3X51" },
+  voiceUrl: "https://koreapolkim.github.io/vo/gum2.mp3",
+  keyPoints:[
+    "비밀수사(약식조사)·통화 유지 요구는 매우 위험",
+    "현금 인출/현금 전달(연락책·수거책) 지시는 100% 사기",
+    "보안앱/원격앱 설치·OTP 요구는 즉시 중단",
+    "끊고 112 또는 기관 ‘대표번호’로 직접 확인"
+  ],
+  oneLiner:"‘비밀수사’로 고립시키고 ‘현금 인출·수거’로 가면 100% 사기—즉시 끊고 공식번호로 확인!",
+  callQuiz:[
+    {
+      core:"귀하의 통장이 범죄 자금세탁에<br> 사용되어 범죄에 연루되었습니다, 알고 있었나요? 이 수사 상황을 외부에 알리면 방조로 처벌될 수도 있습니다.",
+      choices:[
+        {text:"진짜요? 그럼 전 어떡하죠… 지금 뭘 하면 되나요?", score:-20,
+         feedback:"위험해요. 겁을 줘서 ‘지금 당장’ 따르게 만드는 시작 단계일 수 있어요. 여기서 끊고 공식번호로 확인이 먼저입니다.",
+         why:"사기범은 공포를 이용해 판단을 마비시키고, 다음 단계(현금화/앱설치/송금)로 끌고 갑니다.",
+         vector:V(-2,0,0,-2,-2,-2)},
+        {text:"무슨 소리예요, 저는 그런적 없습니다", score:+20,
+         feedback:"좋은 대응이에요. 이어서 통화를 끊고 검찰/경찰 대표번호로 콜백 확인해야 안전합니다.",
+         why:"발신번호·기관명은 조작될 수 있어요. ‘내가 직접 대표번호로 확인’이 검증의 핵심입니다.",
+         vector:V(+2,0,0,+2,0,+2)}
+      ]
+    },
+    {
+      core:"금감원 쪽에서 귀하 계좌를 동결(지급정지) 예정이구요, 동결 전 도움을 드릴려고 연락드린겁니다. 매우 급한 상황으로 통장에 있는 돈을 전부 인출해서 ‘안전 보관’해야 합니다.",
+      choices:[
+        {text:"그럼 지금 바로 현금으로 다 찾아야 하나요?", score:-20,
+         feedback:"매우 위험해요. 어떤 기관도 ‘돈을 전부 인출해 안전 보관’하라고 지시하지 않습니다. 즉시 통화 종료가 필요해요.",
+         why:"현금화는 추적·회수가 어려워 피해가 커지고, 수거책에게 넘어가면 돌려받기 매우 어렵습니다.",
+         vector:V(-2,0,0,-2,-2,-2)},
+        {text:"그럼 제가 일단 끊고, 검찰청에 직접 전화해볼게요", score:+20,
+         feedback:"정답이에요. ‘인출하라’는 지시가 나오면 사기일 가능성이 매우 큽니다. 끊고 공식 채널로 확인하세요.",
+         why:"정상 절차라면 은행/기관 공식 창구 안내로 진행되며, 개인에게 현금 인출 지시를 하지 않습니다.",
+         vector:V(+2,0,0,+2,+2,+2)}
+      ]
+    },
+    {
+      core:"인출한 현금은 안전한 곳으로 전달해야 합니다. 저희 직원이 근처로 갈 테니, 절대 은행 직원이나 경찰에게 말하지 말고 출금 후 기다리세요.",
+      choices:[
+        {text:"알겠습니다. 연락책이 올 때까지 현금 들고 기다리겠습니다", score:-20,
+         feedback:"매우 위험해요. ‘연락책/수거책’에게 현금을 전달하거나 들고 대기하라는 건 보이스피싱의 핵심 단계입니다.",
+         why:"현금을 넘기면 회수가 거의 불가능하고, 추가 피해(추가 인출/추가 전달)로 확대될 수 있어요.",
+         vector:V(-2,0,0,-2,-2,-2)},
+        {text:"공공기관이 돈을 요구하는건 절대 아니라고 알고 있습니다.", score:+20,
+         feedback:"정답이에요. ‘현금 전달/대기’ 지시가 나오면 즉시 끊고 신고/상담이 맞습니다.",
+         why:"정상 기관은 개인에게 현금을 전달하라고 하지 않습니다. 이 지시 자체가 사기 신호입니다.",
+         vector:V(+2,0,0,+2,+2,+2)}
+      ]
+    },
+{
+      core:"지금 안하시면, 모든 돈이 동결돼서 계좌 사용이 어려울겁니다",
+      choices:[
+        {text:"네, 지금 당장 인출하러 가겠습니다", score:-20,
+         feedback:"매우 위험해요. 설치/권한은 피해로 직행합니다.",
+         why:"원격/접근성 권한을 노릴 수 있어요.",
+         vector:V(-2,-2,-2,-2,-2,-2)},
+        {text:"제가 지금 관련 기관에 전화해서 확인해보겠습니다", score:+20,
+         feedback:"정답이에요. 보안앱/원격앱 설치 요구는 매우 위험합니다.",
+         why:"휴대폰 조작/인증 탈취로 이어질 수 있어요.",
+         vector:V(+2,+2,+2,+2,+2,+2)}
+      ]
+    },
+    {
+      core:"통화 끊으면 증거인멸로 영장 집행될 수 있습니다. 계속 통화 유지하세요",
+      choices:[
+        {text:"네 지금 은행에 거의 도착했습니다.", score:-20,
+         feedback:"위험해요. ‘통화 유지’에 응하는 순간 검증이 차단되고, 다음 단계(현금 인출/전달)로 끌려갈 수 있어요.",
+         why:"사기범은 끊으면 들통나기 쉬워서 ‘끊지 말라’고 협박하며 고립시킵니다.",
+         vector:V(-2,-2,-2,-2,-2,-2)},
+        {text:"신고하겠습니다", score:+20,
+         feedback:"정답이에요. ‘협박+통화유지’는 전형적인 사기 신호입니다. 즉시 끊고 112/은행/기관 공식번호로 확인하세요.",
+         why:"정상기관은 전화로 ‘끊으면 영장’처럼 협박하며 통화를 붙잡지 않습니다.",
+         vector:V(+2,+2,+2,+2,+2,+2)}
+      ]
+    }
+  ],
+};
+
+
+/* 셀프감금 */
+window.SCENARIOS.exp_c_self_hostage = {
+  type:"call",
+  speedMs: window.DIALOG_FLOW_SPEED_MS,
+  title:"셀프 감금 협박(보이스피싱)",
+  incoming:{ name:"서울중앙지방검찰청", number:"02-98XX-7X68" },
+  voiceUrl: "https://koreapolkim.github.io/vv/self.mp3",
+  keyPoints:[
+    "고립 지시(혼자 이동/모텔/연락 끊어라)는 즉시 종료",
+    "약식명령·강제수사·영장집행 협박은 ‘통제’ 수법",
+    "통화 유지·현금화(ATM) 지시는 100% 위험",
+    "끊고 112/주변 도움 요청이 정답"
+  ],
+  oneLiner:"‘혼자 가라/끊지 마라/영장’ 협박이 나오면, 끊고 주변에 알리는 게 정답입니다.",
+  callQuiz:[
+    {
+      core:"지금부터 모텔 같은 조용한 곳으로 혼자 이동하셔서 전화받으시고, 지금 수사는 비공개 수사이므로 지금부터 가족 또는 지인에게 말하면 비밀 은닉죄와 공무집행방해죄로 처벌 받을겁니다.",
+      choices:[
+        {text:"알겠습니다, 절대 말할지 않을게요", score:-20,
+         feedback:"위험해요. 고립되면 검증과 도움 요청이 막혀 피해가 커질 수 있어요. 고립 지시는 즉시 거절해야 합니다.",
+         why:"사기범은 주변(가족·은행·경찰)의 개입을 차단하려고 ‘혼자 있으라’고 합니다.",
+         vector:V(-2,0,0,-2,-2,-2)},
+        {text:"누구시죠? 저는 수사받을 만한 일을 하지 않았는데요", score:+20,
+         feedback:"좋은 대응이에요. 이어서 통화를 끊고 대표번호/112로 확인하는 것이 안전합니다.",
+         why:"정상 수사라면 전화로 고립을 강요하지 않고, 공식 절차로 연락합니다.",
+         vector:V(+2,0,0,+2,+2,+2)}
+      ]
+    },
+    {
+      core:"5분 이상 통화가 끊어지는 등 협조가 잘 이뤄지지 않고, 제3자 유포가 우려될 시에는 ‘약식수사’가 아니라 ‘구속수사’로 전환됩니다.",
+      choices:[
+        {text:"네 전화 끊지 않겠습니다.", score:-20,
+         feedback:"위험해요. 협박에 반응해 통화를 유지하면 사기 흐름에 묶여 현금화/송금 지시로 이어질 수 있어요.",
+         why:"‘구속/영장’ 같은 단어로 공포를 주고, 끊지 못하게 통제하려는 수법입니다.",
+         vector:V(-2,0,0,-2,-2,-2)},
+        {text:"제가 끊고, 검찰에 직접 전화해볼게요", score:+20,
+         feedback:"정답이에요. 협박으로 통화를 붙잡는 건 사기 신호입니다. 끊고 공식 대표번호로 확인하세요.",
+         why:"정상기관은 전화로 ‘끊으면 구속’ 같은 방식으로 통화를 강제하지 않습니다.",
+         vector:V(+2,0,0,+2,+2,+2)}
+      ]
+    },
+{
+      core:"다시 한번 말하지만 지금부터 통화 끊지 말고, 주변에 말하면 처벌받습니다. 이거 장난 아닙니다.",
+      choices:[
+        {text:"알겠습니다ㅠ 아무한테도 말 안 하고 통화 유지할게요.", score:-20,
+         feedback:"위험해요. 비밀 유지로 고립되면 피해가 커집니다.",
+         why:"가족/지인 도움을 차단하려는 목적이에요.",
+         vector:V(-2,0,0,-2,-2,-2)},
+        {text:"협박하지 마세요, 제가 공식기관에 확인해보겠습니다", score:+20,
+         feedback:"정답이에요. 비밀 강요는 사기(피싱) 신호예요.",
+         why:"검증을 막기 위한 수법입니다.",
+         vector:V(+2,0,0,+2,0,+2)}
+      ]
+    },
+    {
+      core:"지금부터 핸드폰을 손에서 놓지 말고, 제가 시키는대로 따르셔야 합니다.",
+      choices:[
+        {text:"한번만 봐주세요, 아무에게도 말 안 하고 지시대로 할게요", score:-20,
+         feedback:"위험해요. ‘비밀 유지+통화 유지’에 응하면 고립이 완성되고, 다음 단계(ATM/현금 전달)로 넘어가기 쉬워요.",
+         why:"사기범은 통제력을 높이기 위해 ‘휴대폰을 놓지 말라’며 행동을 지시합니다.",
+         vector:V(-2,0,0,-2,-2,-2)},
+        {text:"끊고, 신고하겠습니다.", score:+20,
+         feedback:"정답이에요. 통제·고립 지시는 즉시 종료가 원칙입니다. 끊고 112 및 주변에 알리세요.",
+         why:"고립을 깨는 순간 사기 흐름이 무너지고, 피해를 막을 수 있습니다.",
+         vector:V(+2,0,0,+2,0,+2)}
+      ]
+    }
+  ],
+};
+
+
+/* 저금리전환 */
+window.SCENARIOS.exp_c_loan_refi_rate = {
+  type:"call",
+  speedMs: window.DIALOG_FLOW_SPEED_MS,
+  title:"대출 저금리 전환(보이스피싱)",
+  incoming:{ name:"OO저축은행 상담센터", number:"02-77XX-3X98" },
+  voiceUrl: "https://koreapolkim.github.io/vv/dae.mp3",
+  keyPoints:[
+    "‘오늘만/사전승인’ 압박은 의심",
+    "문자 링크로 ‘신청서/보안점검 앱’ 설치 유도는 위험",
+    "‘기존대출 상환·신용점수·예치금’ 선입금 요구는 100% 사기",
+    "원격/접근성 권한 요구 즉시 중단"
+  ],
+  oneLiner:"저금리 전환은 ‘전화 지시’가 아니라 ‘공식 채널에서 내가 직접 확인’이 정답입니다.",
+  callQuiz:[
+    {
+      core:"고객님, 저금리 대환 ‘사전승인’ 나왔습니다. 오늘 안에만 가능해요. 지금 전화로 바로 진행해드릴게요.",
+      choices:[
+        {text:"오늘까지라고요? 그럼 바로 전화로 진행할게요", score:-20,
+         feedback:"위험해요. ‘오늘만’ 같은 시간 압박은 검증을 막는 전형적인 수법입니다. 끊고 공식 채널로 확인하세요.",
+         why:"사기범은 급하게 만들고 통제(링크/앱설치/선입금) 단계로 빠르게 넘어가려 합니다.",
+         vector:V(-2,0,0,-2,-2,-2)},
+        {text:"좀 더 확인해봐야할 것 같네요", score:+20,
+         feedback:"정답이에요. 대출은 반드시 금융사 공식 앱/대표번호에서 본인이 직접 확인해야 안전합니다.",
+         why:"발신번호는 조작될 수 있어요. 콜백 확인이 가장 확실한 검증입니다.",
+         vector:V(+2,0,0,+2,0,+2)}
+      ]
+    },
+    {
+      core:"신청서 작성 링크를 문자로 보내드릴게요. 들어가서 ‘보안점검 및 대출신청 앱’ 설치만 하면 금방 끝납니다.",
+      choices:[
+        {text:"앱 설치만 하면 되나요?", score:-20,
+         feedback:"위험해요. 문자 링크/앱 설치는 악성앱·가짜 신청페이지로 이어질 수 있어요.",
+         why:"악성앱이 설치되면 인증 탈취·원격조작·금융앱 접근으로 피해가 발생할 수 있습니다.",
+         vector:V(-2,-2,0,-2,-1,-2)},
+        {text:"링크를 누르라는 게 수상합니다만", score:+20,
+         feedback:"정답이에요. 링크 클릭 대신 공식 앱/홈페이지에서 직접 조회·신청해야 안전합니다.",
+         why:"공식 채널로 직접 접속하면 피싱 페이지를 피할 수 있어요.",
+         vector:V(+2,+2,0,+2,0,+2)}
+      ]
+    },
+{
+      core:"원격앱 설치하고 접근성 권한만 허용하면 제가 빠르게 처리해드릴게요.",
+      choices:[
+        {text:"네, 지금 설치하고 권한 허용했어요", score:-20,
+         feedback:"매우 위험해요. 권한 허용은 피해로 직행할 수 있어요.",
+         why:"사기에서 원격/접근성은 핵심 수단입니다.",
+         vector:V(-2,-2,-2,-2,-2,-2)},
+        {text:"아 뭔가 이상한데, 제가 일단 끊고 은행에 직접 전화해 볼게요", score:+20,
+         feedback:"정답이에요. 원격/접근성은 매우 위험합니다.",
+         why:"휴대폰 조작/인증 탈취/송금 피해로 이어질 수 있어요.",
+         vector:V(+2,+2,+2,+2,+2,+2)}
+      ]
+    },
+    {
+      core:"대환 승인 전에 기존대출 약정 위반 및 신용점수 문제 때문에 ‘예치금’을 먼저 입금해야 합니다. 입금하면 바로 실행돼요.",
+      choices:[
+        {text:"입금하고 바로 연락드릴게요 그럼 바로 실행되는거죠?", score:-20,
+         feedback:"매우 위험해요. ‘선입금/예치금/상환금 먼저’ 요구는 100% 보이스피싱 신호로 보셔야 합니다.",
+         why:"정상 금융사는 대출 실행을 조건으로 개인에게 선입금을 요구하지 않습니다.",
+         vector:V(-2,0,0,-2,-2,-2)},
+        {text:"금융권은 선입금을 요구하지 않는다고 알고 있는데, 제가 직접 은행에 확인해보겠습니다", score:+20,
+         feedback:"정답이에요. 선입금 요구는 즉시 중단하고, 공식 채널에서 사실 확인해야 합니다.",
+         why:"입금 후 ‘수수료/해지비용’ 등 추가 요구로 확대되는 사례가 많습니다.",
+         vector:V(+2,0,0,+2,+2,+2)}
+      ]
+    }
+  ],
+};
+
+
+/* 카드배송 */
+window.SCENARIOS.exp_c_post_card = {
+  type:"call",
+  speedMs: window.DIALOG_FLOW_SPEED_MS,
+  voiceUrl: "https://koreapolkim.github.io/vvv/card.mp3",
+  title:"카드 배송(보이스피싱)",
+  incoming:{ name:"카드배송 집배원", number:"010-98XX-07X2" },
+  keyPoints:[
+    "‘카드 배송/오배송/반송’이라며 ‘가짜 고객센터’로 유도하면 의심",
+    "문자로 보내는 링크(주소 URL)는 누르지 말고 공식 채널로 확인",
+    "OTP·원격제어앱·접근성 권한 요구는 즉시 중단"
+  ],
+  oneLiner:"카드 배송 전화는 끊고, 카드사/우체국 ‘공식 번호’로 내가 직접 확인하세요.",
+  callQuiz:[
+    {
+      core:"카드배송기사인데요, 고객님 명의 발급 카드 배송해드릴려고하는데 댁에 계시나요?",
+      choices:[
+        {text:"네, 제가 집 근처라 곧 도착해요", score:-20,
+         feedback:"위험해요. 이 흐름은 ‘가짜 고객센터/가짜 사고예방팀’으로 연결해 개인정보·인증·앱설치로 이어질 수 있어요.",
+         why:"사기범은 ‘지금 여기서 해결’하게 만들어 공식 확인(콜백)을 못 하게 합니다.",
+         vector:V(-2,0,0,-2,-1,-2)},
+        {text:"카드를 신청한적이 없는데요", score:+20,
+         feedback:"정답이에요. 발신번호·연결번호는 조작될 수 있어요. 공식번호로 콜백해야 안전합니다.",
+         why:"내가 직접 공식 번호로 확인하면 ‘가짜 고객센터’ 유도에 걸리지 않습니다.",
+         vector:V(+2,0,0,+2,0,+2)}
+      ]
+    },
+    {
+      core:"카드 발급하신 적이 없으시다구요? OOO씨 아니세요? 신청하시지 않았는데 발급될 일이 없는데, 저는 배송만 하는 사람이라 그럼 반송 처리 신청해주시겠어요?",
+      choices:[
+        {text:"그래요? 어디로 전화해야 하나요? ", score:-20,
+         feedback:"매우 위험해요. ‘취소/사고예방’ 명목으로 OTP나 인증을 요구하면 계정·결제 탈취로 이어질 수 있어요.",
+         why:"OTP는 ‘내가 직접 입력’해야 하는 보안수단입니다. 남에게 말하면 상대가 인증을 대신 처리할 수 있어요.",
+         vector:V(-2,0,-2,-2,-2,-2)},
+        {text:"어디 카드라고 하셨죠? 제가 직접 그 카드사에 전화해볼게요", score:+20,
+         feedback:"정답이에요. 취소/반송이 필요해도 OTP를 말할 이유가 없습니다. 끊고 공식 채널로 확인하세요.",
+         why:"정상 절차는 카드사 공식 앱/대표번호에서 본인이 직접 처리할 수 있습니다.",
+         vector:V(+2,0,+2,+2,0,+2)}
+      ]
+    },
+ {
+      core:"지금 우편물 뒤에 보면 OO카드사라고 확인되는데, 진짜 신청한 적 없으세요?",
+      choices:[
+        {text:"내가 언제 신청했었나? 반송 접수는 어디서 하죠?", score:-20,
+         feedback:"매우 위험해요. 원격앱/접근성 권한은 휴대폰 조작과 인증 탈취로 이어질 수 있어요.",
+         why:"사기범은 원격/접근성 권한으로 문자 인증/금융앱 조작을 시도할 수 있어요. ‘대신 해준다’는 말이 특히 위험합니다.",
+         vector:V(-2,-2,-2,-2,-2,-2)},
+        {text:"OO카드회사에 직접 전화해볼게요", score:+20,
+         feedback:"정답이에요. 원격앱 설치/권한 요구는 사기(피싱)에서 매우 위험한 신호예요.",
+         why:"공식기관은 전화로 원격앱 설치를 요구하지 않습니다. 끊고 공식 앱/대표번호로 확인하는 것이 안전합니다.",
+         vector:V(+2,+2,+2,+2,+2,+2)}
+      ]
+    },
+    {
+      core:"꼭 OO카드 사고예방팀에 전화하셔서, 카드 배송 취소 신청 꼭 해주세요, 그래야 2차 사고 예방이 돼요",
+      choices:[
+        {text:"네 감사합니다, 불러주신 번호로 전화해볼게요", score:-10,
+         feedback:"위험해요. ‘사고예방/취소’라고 해도 링크 클릭이나 설치는 피싱/악성앱으로 이어질 수 있어요.",
+         why:"사기범은 가짜 안내(링크/앱)로 개인정보 입력·권한 허용을 유도해 금융 피해로 연결합니다.",
+         vector:V(0,-1,0,-1,-1,-1)},
+        {text:"신고하겠습니다", score:+20,
+         feedback:"정답이에요. 안내받은 링크/설치가 아니라, 내가 직접 공식 앱/홈페이지로 확인해야 안전합니다.",
+         why:"공식 채널로 직접 접속하면 가짜 사이트/악성앱 설치 유도를 차단할 수 있어요.",
+         vector:V(+2,+2,+2,+2,0,+2)}
+      ]
+    }
+  ],
+};
+
+
+
+/* ✅ CASE 목록 메타(Subtitle/Keywords/Summary) 자동 동기화
+   - 사용자가 SCENARIOS(대화/문제/답)을 바꿔도 리스트/설명 화면 문구가 따라오게 함
+   - 필요 시 각 시나리오에 아래 옵션을 직접 넣으면 우선 적용됩니다:
+     exp.listSubtitle, exp.listSummary, exp.listKeywords(Array), exp.introLines(Array)
+*/
+(function syncCaseMetaFromScenarios(){
+  try{
+    if(!Array.isArray(window.CASES) || !window.SCENARIOS) return;
+
+    const pickKeywords = (exp)=>{
+      if(Array.isArray(exp?.listKeywords) && exp.listKeywords.length) return exp.listKeywords;
+      if(Array.isArray(exp?.keyPoints) && exp.keyPoints.length) return exp.keyPoints.slice(0,5);
+      return [];
+    };
+
+    window.CASES.forEach(c=>{
+      const exp = window.SCENARIOS?.[c?.experienceId];
+      if(!exp || !c) return;
+
+      // subtitle
+      const sub = String(exp.listSubtitle || exp.oneLiner || c.subtitle || "").trim();
+      if(sub) c.subtitle = sub;
+
+      // summary/keywords
+      c.info = (c.info && typeof c.info==="object") ? c.info : {};
+      const sum = String(exp.listSummary || exp.oneLiner || c.info.summary || "").trim();
+      if(sum) c.info.summary = sum;
+
+      const kws = pickKeywords(exp);
+      if(kws && kws.length){
+        c.info.keywords = kws.map(x=>{
+          const s = String(x||"").trim();
+          return s ? (s.endsWith(",") ? s : (s + ",")) : "";
+        }).filter(Boolean);
+      }
+    });
+  }catch(e){}
+})();
+</script>
+</body>
+</html>
+
+
